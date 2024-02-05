@@ -52,6 +52,9 @@ jobs:
         run: docker pull ${{ inputs.registry }}/${{ github.repository_owner }}/${{ inputs.image }}
         shell: bash
 
+      - name: Apply tags to the loaded image 🏷
+        run: python3 -m extension.tagging.apply_tags --short-image-name ${{ inputs.image }} --registry ${{ inputs.registry }} --owner ${{ github.repository_owner }}
+      
       - name: Prepare image push 📦
         run: |
           # The short image name (without tag) is necessary to push to the registry
