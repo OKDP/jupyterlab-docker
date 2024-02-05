@@ -14,8 +14,15 @@ on:
 
       - ".build/.versions.yml"
 
+      - "python/src/patch/**"
       - "python/src/extension/**"
-      - "docker-stacks/**"
+      - "docker-stacks/images/**"
+      - "docker-stacks/tests/**"
+      - "docker-stacks/tagging/**"
+      - "images/**"
+
+      - "!python/src/patch/README.md"
+      - "!images/README.md"
 
   push:
     branches:
@@ -32,8 +39,15 @@ on:
 
       - ".build/.versions.yml"
 
+      - "python/src/patch/**"
       - "python/src/extension/**"
-      - "docker-stacks/**"
+      - "docker-stacks/images/**"
+      - "docker-stacks/tests/**"
+      - "docker-stacks/tagging/**"
+      - "images/**"
+      
+      - "!python/src/patch/README.md"
+      - "!images/README.md"
 
   workflow_dispatch:
 
