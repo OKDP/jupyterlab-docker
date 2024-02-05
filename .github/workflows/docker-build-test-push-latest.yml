@@ -77,6 +77,12 @@ jobs:
           echo "SHORT_IMAGE_NAME=${{ inputs.image }}" | awk -F: '{print $1}' >> $GITHUB_ENV
         shell: bash
 
+      - name: Patch PySpark Dockerfile to be compatible with java +11 📦
+        if: contains(inputs.image, 'pyspark-notebook:') && contains(inputs.build-args, 'spark_version=3.2.') && ! contains(inputs.build-args, 'openjdk_version=8')
+        run: |
+          cat ../images/patch/pyspark-notebook/Dockerfile.spark3.2.x >> images/$SHORT_IMAGE_NAME/Dockerfile
+        shell: bash
+
       - name: Build image 🛠
         run: |
           #docker buildx build --platform=linux/amd64 --rm --force-rm --tag ...
