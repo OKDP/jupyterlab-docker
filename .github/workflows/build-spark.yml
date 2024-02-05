@@ -37,9 +37,8 @@ on:
         type: string
       registry:
         description: The list of tags space separated values
-        required: false
+        required: true
         type: string
-        default: "ghcr.io"
       runs-on:
         description: GitHub Actions Runner image
         required: true
@@ -60,6 +59,7 @@ jobs:
     with:
       parent-image: scipy-notebook:${{ inputs.python_dev_tag }}
       image: pyspark-notebook:${{ inputs.spark_dev_tag }}
+      registry: ${{ inputs.registry }}
       runs-on: ${{ inputs.runs-on }}
       build-args:
         spark_download_url=${{ inputs.spark_download_url }}
@@ -76,6 +76,7 @@ jobs:
     with:
       parent-image: pyspark-notebook:${{ inputs.spark_dev_tag }}
       image: all-spark-notebook:${{ inputs.spark_dev_tag }}
+      registry: ${{ inputs.registry }}
       runs-on: ${{ inputs.runs-on }}
     secrets:
       registry_username: ${{ secrets.registry_username }}

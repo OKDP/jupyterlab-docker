@@ -11,6 +11,10 @@ on:
         description: Tag to use for latest base images (foundation, minimal, etc)
         required: true
         type: string
+      registry:
+        description: The list of tags space separated values
+        required: true
+        type: string
       runs-on:
         description: GitHub Actions Runner image
         required: true
@@ -32,9 +36,10 @@ jobs:
     with:
       parent-image: ""
       image: docker-stacks-foundation:${{ inputs.python_dev_tag }}
-      runs-on: ubuntu-latest
+      registry: ${{ inputs.registry }}
       build-args:
         PYTHON_VERSION=${{ inputs.python_version }}
+      runs-on: ubuntu-latest
     secrets:
       registry_username: ${{ secrets.registry_username }}
       registry_token: ${{ secrets.registry_token }}
@@ -44,6 +49,7 @@ jobs:
     with:
       parent-image: docker-stacks-foundation:${{ inputs.python_dev_tag }}
       image: base-notebook:${{ inputs.python_dev_tag }}
+      registry: ${{ inputs.registry }}
       runs-on: ubuntu-latest
     secrets:
       registry_username: ${{ secrets.registry_username }}
@@ -55,6 +61,7 @@ jobs:
     with:
       parent-image: base-notebook:${{ inputs.python_dev_tag }}
       image: minimal-notebook:${{ inputs.python_dev_tag }}
+      registry: ${{ inputs.registry }}
       runs-on: ubuntu-latest
     secrets:
       registry_username: ${{ secrets.registry_username }}
@@ -66,6 +73,7 @@ jobs:
     with:
       parent-image: minimal-notebook:${{ inputs.python_dev_tag }}
       image: scipy-notebook:${{ inputs.python_dev_tag }}
+      registry: ${{ inputs.registry }}
       runs-on: ubuntu-latest
     secrets:
       registry_username: ${{ secrets.registry_username }}

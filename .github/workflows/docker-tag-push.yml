@@ -9,9 +9,8 @@ on:
         type: string
       registry:
         description: The list of tags space separated values
-        required: false
+        required: true
         type: string
-        default: "ghcr.io"
       runs-on:
         description: GitHub Actions Runner image
         required: true

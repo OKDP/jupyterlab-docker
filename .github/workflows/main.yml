@@ -26,7 +26,7 @@ on:
 
   push:
     branches:
-      - main
+      - build-pipeline
     paths:
       - ".github/workflows/main.yml"
       - ".github/workflows/build-base.yml"
@@ -97,6 +97,7 @@ jobs:
     with:
       python_version: ${{ matrix.python.python_version }}
       python_dev_tag: ${{ matrix.python.python_dev_tag }}
+      registry: ${{ vars.REGISTRY || 'ghcr.io' }}
       runs-on: ubuntu-latest
     secrets:
       registry_username: ${{ secrets.REGISTRY_USERNAME }}
@@ -113,6 +114,7 @@ jobs:
     uses: ./.github/workflows/build-datascience.yml
     with:
       python_dev_tag: ${{ matrix.python.python_dev_tag }}
+      registry: ${{ vars.REGISTRY || 'ghcr.io' }}
       runs-on: ubuntu-latest
     secrets:
       registry_username: ${{ secrets.REGISTRY_USERNAME }}
@@ -136,6 +138,7 @@ jobs:
       hadoop_version: ${{ matrix.spark.hadoop_version }}
       python_dev_tag: ${{ matrix.spark.python_dev_tag }}
       spark_dev_tag: ${{ matrix.spark.spark_dev_tag }}
+      registry: ${{ vars.REGISTRY || 'ghcr.io' }}
       runs-on: ubuntu-latest
     secrets:
       registry_username: ${{ secrets.REGISTRY_USERNAME }}
@@ -154,6 +157,7 @@ jobs:
     uses: ./.github/workflows/docker-tag-push.yml
     with:
       image: "${{ matrix.image }}:${{ matrix.python.python_dev_tag }}"
+      registry: ${{ vars.REGISTRY || 'ghcr.io' }}
       runs-on: ubuntu-latest
     secrets:
       registry_username: ${{ secrets.REGISTRY_USERNAME }}
@@ -171,6 +175,7 @@ jobs:
     uses: ./.github/workflows/docker-tag-push.yml
     with:
       image: "${{ matrix.image }}:${{ matrix.python.python_dev_tag }}"
+      registry: ${{ vars.REGISTRY || 'ghcr.io' }}
       runs-on: ubuntu-latest
     secrets:
       registry_username: ${{ secrets.REGISTRY_USERNAME }}
@@ -187,6 +192,7 @@ jobs:
     uses: ./.github/workflows/docker-tag-push.yml
     with:
       image: "${{ matrix.image }}:${{ matrix.spark.spark_dev_tag }}"
+      registry: ${{ vars.REGISTRY || 'ghcr.io' }}
       runs-on: ubuntu-latest
     secrets:
       registry_username: ${{ secrets.REGISTRY_USERNAME }}

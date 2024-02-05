@@ -13,9 +13,8 @@ on:
         type: string
       registry:
         description: The list of tags space separated values
-        required: false
+        required: true
         type: string
-        default: "ghcr.io"
       build-args:
         description: Build args comma separated list, ex. PYTHON_VERSION=3.11, ...
         required: false

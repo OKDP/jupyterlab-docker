@@ -7,6 +7,10 @@ on:
         description: Tag to use for latest base images (foundation, minimal, etc)
         required: true
         type: string
+      registry:
+        description: The list of tags space separated values
+        required: true
+        type: string
       runs-on:
         description: GitHub Actions Runner image
         required: true
@@ -27,6 +31,7 @@ jobs:
     with:
       parent-image: minimal-notebook:${{ inputs.python_dev_tag }}
       image: r-notebook:${{ inputs.python_dev_tag }}
+      registry: ${{ inputs.registry }}
       runs-on: ${{ inputs.runs-on }}
     secrets:
       registry_username: ${{ secrets.registry_username }}
@@ -37,6 +42,7 @@ jobs:
     with:
       parent-image: scipy-notebook:${{ inputs.python_dev_tag }}
       image: datascience-notebook:${{ inputs.python_dev_tag }}
+      registry: ${{ inputs.registry }}
       runs-on: ${{ inputs.runs-on }}
     secrets:
       registry_username: ${{ secrets.registry_username }}
@@ -47,6 +53,7 @@ jobs:
   #   with:
   #     parent-image: minimal-notebook:${{ inputs.python_dev_tag }}
   #     image: julia-notebook
+  #     registry: ${{ inputs.registry }}
   #     runs-on: ${{ inputs.runs-on }}
   #   secrets:
   #     registry_username: ${{ secrets.registry_username }}
@@ -57,6 +64,7 @@ jobs:
   #   with:
   #     parent-image: scipy-notebook:${{ inputs.python_dev_tag }}
   #     image: tensorflow-notebook
+  #     registry: ${{ inputs.registry }}
   #     runs-on: ${{ inputs.runs-on }}
   #   secrets:
   #     registry_username: ${{ secrets.registry_username }}
@@ -67,6 +75,7 @@ jobs:
   #   with:
   #     parent-image: scipy-notebook:${{ inputs.python_dev_tag }}
   #     image: pytorch-notebook
+  #     registry: ${{ inputs.registry }}
   #     runs-on: ${{ inputs.runs-on }}
   #   secrets:
   #     registry_username: ${{ secrets.registry_username }}
