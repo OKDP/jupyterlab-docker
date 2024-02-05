@@ -1,0 +1,113 @@
+name: Build, test and tag the image as -<git-branch>-latest; then push to the container registry
+
+on:
+  workflow_call:
+    inputs:
+      parent-image:
+        description: Parent image name
+        required: true
+        type: string
+      image:
+        description: Image name
+        required: true
+        type: string
+      registry:
+        description: The list of tags space separated values
+        required: false
+        type: string
+        default: "ghcr.io"
+      build-args:
+        description: Build args comma separated list, ex. PYTHON_VERSION=3.11, ...
+        required: false
+        type: string
+      runs-on:
+        description: GitHub Actions Runner image
+        required: true
+        type: string
+    secrets:
+      registry_username:
+        required: true
+      registry_token:
+        required: true
+
+defaults:
+  run:
+    working-directory: ./docker-stacks
+jobs:
+  build-test-upload:
+    name: ${{ inputs.image }}
+    runs-on: ${{ inputs.runs-on }}
+
+    steps:
+      - name: Checkout Repo ⚡️
+        uses: actions/checkout@v4
+    
+      - name: Setup dev env patchs 📦
+        uses: ./.github/actions/install-patchs-and-extension
+      
+      - name: Create dev environment 📦
+        uses: ./docker-stacks/.github/actions/create-dev-env
+      
+      - name: Expose git commit sha as env variable
+        uses: rlespinasse/git-commit-data-action@v1.5.0
+
+      - name: Login to Registry 🔐
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ inputs.registry }}
+          username: ${{ secrets.registry_username }}
+          password: ${{ secrets.registry_token }}
+
+      - name: Pull parent image 📥
+        if: inputs.parent-image != ''
+        run: docker pull ${{ inputs.registry }}/${{ github.repository_owner }}/${{ inputs.parent-image }}
+        shell: bash
+      - name: Prepare image build (build args) 📦
+        run: |
+          for build_arg in ${{ inputs.build-args }}
+          do
+            BUILD_ARGS+="--build-arg $build_arg "
+          done
+          if [[ "${{ inputs.parent-image }}" ]]
+          then
+            BUILD_ARGS+="--build-arg BASE_CONTAINER=${{ inputs.registry }}/${{ github.repository_owner }}/${{ inputs.parent-image }} "
+          fi
+          echo "BUILD_ARGS=$BUILD_ARGS" >> $GITHUB_ENV
+          # The short image name is necessary to run the tests (not pushed, local to jobs only)
+          echo "SHORT_IMAGE_NAME=${{ inputs.image }}" | awk -F: '{print $1}' >> $GITHUB_ENV
+        shell: bash
+
+      - name: Patch PySpark Dockerfile to be compatible with java +11 📦
+        if: contains(inputs.image, 'pyspark-notebook:') && contains(inputs.build-args, 'spark_version=3.2.') && ! contains(inputs.build-args, 'openjdk_version=8')
+        run: |
+          cat ../images/patch/pyspark-notebook/Dockerfile.spark3.2.x >> images/$SHORT_IMAGE_NAME/Dockerfile
+        shell: bash
+
+      - name: Build image 🛠
+        run: |
+          #docker buildx build --platform=linux/amd64 --rm --force-rm --tag ...
+          docker build --rm --force-rm --tag ${{ inputs.registry }}/${{ github.repository_owner }}/${{ inputs.image }} \
+            --tag ${{ inputs.registry }}/${{ github.repository_owner }}/$SHORT_IMAGE_NAME:latest images/$SHORT_IMAGE_NAME/ \
+            --build-arg REGISTRY=${{ inputs.registry }} \
+            --build-arg OWNER=${{ github.repository_owner }} $BUILD_ARGS \
+            --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
+            --label "org.opencontainers.image.description=$SHORT_IMAGE_NAME"
+        env:
+          DOCKER_BUILDKIT: 1
+          # Full logs for CI build
+          BUILDKIT_PROGRESS: plain
+        shell: bash
+
+      - name: Run tests ✅
+        # Skip tests when running with ACT
+        if: env.ACT_SKIP_TESTS == ''
+        run: |
+            python3 -m tests.run_tests --short-image-name $SHORT_IMAGE_NAME --registry ${{ inputs.registry }} --owner ${{ github.repository_owner }}
+        shell: bash
+      
+      - name: Push latest tag image to registry 📤
+        run: docker push ${{ inputs.registry }}/${{ github.repository_owner }}/${{ inputs.image }}
+        shell: bash
+
+
+      

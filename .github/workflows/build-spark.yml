@@ -1,0 +1,84 @@
+name: Build, test, and push jupyter Spark images
+
+on:
+  workflow_call:
+    inputs:
+      python_version:
+        description: Python version
+        required: true
+        type: string
+      spark_download_url:
+        description: Spark dist download url
+        required: true
+        type: string
+      spark_version:
+        description: Spark version
+        required: true
+        type: string
+      java_version:
+        description: Java version
+        required: true
+        type: string
+      scala_version:
+        description: Scala version
+        required: true
+        type: string
+      hadoop_version:
+        description: Hadoop version
+        required: true
+        type: string
+      python_dev_tag:
+        description: Tag to use for latest base images (foundation, minimal, etc)
+        required: true
+        type: string
+      spark_dev_tag:
+        description: Tag to use for latest pyspark images (pyspark, all-spark, etc)
+        required: true
+        type: string
+      registry:
+        description: The list of tags space separated values
+        required: false
+        type: string
+        default: "ghcr.io"
+      runs-on:
+        description: GitHub Actions Runner image
+        required: true
+        type: string
+    secrets:
+      registry_username:
+        required: true
+      registry_token:
+        required: true
+
+defaults:
+  run:
+    working-directory: ./docker-stacks
+
+jobs:
+  pyspark:
+    uses: ./.github/workflows/docker-build-test-push-latest.yml
+    with:
+      parent-image: scipy-notebook:${{ inputs.python_dev_tag }}
+      image: pyspark-notebook:${{ inputs.spark_dev_tag }}
+      runs-on: ${{ inputs.runs-on }}
+      build-args:
+        spark_download_url=${{ inputs.spark_download_url }}
+        spark_version=${{ inputs.spark_version }}
+        openjdk_version=${{ inputs.java_version }}
+        scala_version=${{ inputs.scala_version }}
+        hadoop_version=${{ inputs.hadoop_version }}
+    secrets:
+      registry_username: ${{ secrets.registry_username }}
+      registry_token: ${{ secrets.registry_token }}
+
+  all-spark:
+    uses: ./.github/workflows/docker-build-test-push-latest.yml
+    with:
+      parent-image: pyspark-notebook:${{ inputs.spark_dev_tag }}
+      image: all-spark-notebook:${{ inputs.spark_dev_tag }}
+      runs-on: ${{ inputs.runs-on }}
+    secrets:
+      registry_username: ${{ secrets.registry_username }}
+      registry_token: ${{ secrets.registry_token }}
+    needs: [pyspark]
+

@@ -1,0 +1,18 @@
+name: Set up dev env requirements
+description: Set up dev env requirements for build and tests
+
+runs:
+  using: composite
+  steps:
+  - name: Setup dev env requirement 📦
+    run: |
+      cp -f requirements-dev.txt ../
+    working-directory: ./docker-stacks
+    shell: bash
+
+  - name: Copy patchs 📦
+    run: |
+      cp -fr ../python/src/extension ./
+    working-directory: ./docker-stacks
+    shell: bash
+
