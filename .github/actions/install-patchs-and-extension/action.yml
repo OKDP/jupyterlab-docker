@@ -12,6 +12,7 @@ runs:
 
   - name: Copy patchs 📦
     run: |
+      cp -fr ../python/src/patch/* ./
       cp -fr ../python/src/extension ./
     working-directory: ./docker-stacks
     shell: bash
