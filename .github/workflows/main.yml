@@ -179,5 +179,28 @@ jobs:
       registry_token: ${{ secrets.REGISTRY_ROBOT_TOKEN }}
     needs: [build-version-compatibility-matrix, build-datascience, build-spark]
 
+  # Credit for the following workraound: https://github.com/orgs/community/discussions/67654#discussioncomment-8038649
+  partial-rerun-on-failure:
+    # Allow re-run the main branch only
+    if:  failure() && github.ref == 'refs/heads/main' && fromJSON(github.run_attempt) < 3
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+      packages: write
+    steps:
+      - name: "Re-run failed jobs"
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          GH_DEBUG: api
+        run: |
+          gh workflow run auto-rerun.yml \
+             -F run_id=${{ github.run_id }} \
+             -F workflow_name=${{ github.workflow }} \
+             -F workflow_sha=${{ github.workflow_sha }}
 
+        shell: bash
+      
+    needs: [push-base, push-datascience, push-spark]
     
