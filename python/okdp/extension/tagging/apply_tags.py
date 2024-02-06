@@ -12,7 +12,7 @@ import logging
 import plumbum
 
 from tagging.docker_runner import DockerRunner
-from extension.tagging.get_taggers_and_manifests import get_taggers_and_manifests
+from okdp.extension.tagging.get_taggers_and_manifests import get_taggers_and_manifests
 
 docker = plumbum.local["docker"]
 

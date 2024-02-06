@@ -13,8 +13,8 @@ runs:
 
   - name: Copy patchs 📦
     run: |
-      cp -fr ../python/src/patch/* ./
-      cp -fr ../python/src/extension ./
+      cp -fr ../python/okdp/patch/* ./
+      cp -fr ../python/okdp ./
     working-directory: ./docker-stacks
     shell: bash
 

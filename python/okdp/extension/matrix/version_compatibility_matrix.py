@@ -2,9 +2,10 @@ import json
 import yaml
 import argparse
 import logging
-from constants import *
+from okdp.extension.matrix.constants import *
 
-from utils.matrix_utils import filter_versions, intersect_versions, merge_versions, normalize_matrix, normalize_scala_version, normalize_value, remove_duplicates
+from okdp.extension.matrix.utils.matrix_utils import ignore_invalid_versions, join_versions, group_versions_by, normalize_matrix, normalize_scala_version, normalize_value, remove_duplicates
+from okdp.extension.matrix.utils.matrix_utils import group_on
 
 LOGGER = logging.getLogger(__name__)
 
@@ -23,17 +24,24 @@ class VersionCompatibilityMatrix:
         self.git_branch = git_branch.replace("/", "-")
 
       self.__validate__()
+      self._normalize_values_()
+
+    
+   def _normalize_values_(self):
+      """"Convert simple value to an array
+          Ex.: python_version: 3.11 => python_version: ['3.11']
+      """
       self.compatibility_matrix = [dict(map(lambda kv: (kv[0], normalize_value(kv[1])), e.items())) for e in self.compatibility_matrix]
       self.build_matrix = dict(map(lambda kv: (kv[0], normalize_value(kv[1])), self.build_matrix.items()))
-    
+
    def __validate__(self):
-     if not self.compatibility_matrix:
-       raise ValueError(f"The compatibility-matrix section is mandatory")
+      if not self.compatibility_matrix:
+        raise ValueError(f"The compatibility-matrix section is mandatory")
 
    def generate_matrix(self) -> (str, dict):
 
       compatibility_versions_matrix = [dict(map(lambda kv: (kv[0], normalize_value(kv[1])), e.items())) for e in self.compatibility_matrix]
-      spark_version_matrix = normalize_matrix(filter_versions(intersect_versions(merge_versions(compatibility_versions_matrix), self.build_matrix)))
+      spark_version_matrix = normalize_matrix(ignore_invalid_versions(join_versions(group_versions_by(compatibility_versions_matrix, group_on=group_on), self.build_matrix)))
       spark_version_matrix = normalize_scala_version(self.add_latest_dev_tags(spark_version_matrix))
       python_version_matrix = remove_duplicates([{PYTHON_VERSION: e.get(PYTHON_VERSION), PYTHON_DEV_TAG: e.get(PYTHON_DEV_TAG)}  for e in spark_version_matrix ])
       return (spark_version_matrix, python_version_matrix)
@@ -73,11 +81,11 @@ if __name__ == "__main__":
   )
   
   args = arg_parser.parse_args()
-  bm = VersionCompatibilityMatrix(args.versions_matrix_path, args.git_branch)
-  #bm = VersionCompatibilityMatrix(".build/.versions.yml", "main")
+  vcm = VersionCompatibilityMatrix(args.versions_matrix_path, args.git_branch)
+  #vcm = VersionCompatibilityMatrix(".build/.versions.yml", "main")
   #with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
-  #  print(f"spark_matrix={json.dumps(bm.generate_matrix())}", file=fh)
-  (spark_matrix, python_version) = bm.generate_matrix()
+  #  print(f"spark_matrix={json.dumps(vcm.generate_matrix())}", file=fh)
+  (spark_matrix, python_version) = vcm.generate_matrix()
   assert spark_matrix, ("The resulting build matrix was empty. Please, review your configuration '.build/.versions.yml'") 
   print(f"spark={json.dumps(spark_matrix)}")
   print(f"python={json.dumps(python_version)}")

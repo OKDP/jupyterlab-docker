@@ -8,7 +8,7 @@ Modification of the original file:
 
 from typing import Optional
 
-from extension.tagging.images_hierarchy import ALL_IMAGES
+from okdp.extension.tagging.images_hierarchy import ALL_IMAGES
 from tagging.manifests import ManifestInterface
 from tagging.taggers import TaggerInterface
 

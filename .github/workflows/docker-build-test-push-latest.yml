@@ -61,6 +61,7 @@ jobs:
         if: inputs.parent-image != ''
         run: docker pull ${{ inputs.registry }}/${{ github.repository_owner }}/${{ inputs.parent-image }}
         shell: bash
+        
       - name: Prepare image build (build args) 📦
         run: |
           for build_arg in ${{ inputs.build-args }}
@@ -97,6 +98,7 @@ jobs:
           BUILDKIT_PROGRESS: plain
         shell: bash
 
+      # Run docker-stacks tests (docker-stacks/tests)
       - name: Run tests ✅
         # Skip tests when running with ACT
         if: env.ACT_SKIP_TESTS == ''

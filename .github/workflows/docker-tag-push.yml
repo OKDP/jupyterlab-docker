@@ -52,7 +52,7 @@ jobs:
         shell: bash
 
       - name: Apply tags to the loaded image 🏷
-        run: python3 -m extension.tagging.apply_tags --short-image-name ${{ inputs.image }} --registry ${{ inputs.registry }} --owner ${{ github.repository_owner }}
+        run: python3 -m okdp.extension.tagging.apply_tags --short-image-name ${{ inputs.image }} --registry ${{ inputs.registry }} --owner ${{ github.repository_owner }}
       
       - name: Prepare image push 📦
         run: |

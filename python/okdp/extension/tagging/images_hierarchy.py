@@ -10,7 +10,7 @@ Extension of the original file:
 
 from dataclasses import dataclass, field
 from typing import Optional
-from extension.tagging.taggers import (
+from okdp.extension.tagging.taggers import (
     JavaMajorVersionTagger,
     JavaVersionTagger,
     LongTagger,

@@ -1,8 +1,8 @@
 from itertools import groupby
 import itertools
-from constants import *
+from okdp.extension.matrix.constants import *
 
-def merge_on(elem) -> str:
+def group_on(elem) -> str:
     return str(elem[PYTHON_VERSION]) + "_".join(str(elem[JAVA_VERSION])) + str(elem[HADOOP_VERSION])
 
 def intersect_dicts(dict1: dict, dict2: dict) -> dict:
@@ -31,7 +31,7 @@ def merge_dicts(dict1: dict, *args: dict) -> dict:
                 dict_res[key] = list(set(sum([value , dict1[key]], [])))
     return dict_res if len(args) == 1 else merge_dicts(dict_res, *args[1:])
 
-def intersect_versions(groups: list[dict], on_dict: dict) -> list[dict]:
+def join_versions(groups: list[dict], on_dict: dict) -> list[dict]:
     """ Intersect groups of dicts values with the provided on_dict """
     ### Intersect the groups with on_dict
     result = []
@@ -40,14 +40,13 @@ def intersect_versions(groups: list[dict], on_dict: dict) -> list[dict]:
     
     return result
 
-def merge_versions(dicts: list[dict]) -> list[dict]:
-    """ Merge list of dicts by keeping all the values for the keys,
-        Then group the elements by python_version key
+def group_versions_by(dicts: list[dict], group_on) -> list[dict]:
+    """ Group the spark versions by PYTHON_VERSION/JAVA_VERSION/HADOOP_VERSION
     """
     ### Group the elements by python_version
     python_groups = []
-    data = sorted(dicts, key=merge_on)
-    for k, g in groupby(data, merge_on):
+    data = sorted(dicts, key=group_on)
+    for k, g in groupby(data, group_on):
          python_groups.append(list(g))
     
     ### Merge the groups
@@ -56,7 +55,7 @@ def merge_versions(dicts: list[dict]) -> list[dict]:
       result.extend(group)
     return result
 
-def filter_versions (dicts: list[dict]) -> list[dict]:
+def ignore_invalid_versions (dicts: list[dict]) -> list[dict]:
    return list(filter(lambda elem: 
                 elem.get(SPARK_VERSION) and 
                 elem.get(JAVA_VERSION) and 

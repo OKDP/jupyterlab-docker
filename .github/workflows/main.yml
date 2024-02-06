@@ -14,14 +14,13 @@ on:
 
       - ".build/.versions.yml"
 
-      - "python/src/patch/**"
-      - "python/src/extension/**"
+      - "python/okdp/**"
       - "docker-stacks/images/**"
       - "docker-stacks/tests/**"
       - "docker-stacks/tagging/**"
       - "images/**"
 
-      - "!python/src/patch/README.md"
+      - "!python/okdp/patch/README.md"
       - "!images/README.md"
 
   push:
@@ -39,14 +38,13 @@ on:
 
       - ".build/.versions.yml"
 
-      - "python/src/patch/**"
-      - "python/src/extension/**"
+      - "python/okdp/**"
       - "docker-stacks/images/**"
       - "docker-stacks/tests/**"
       - "docker-stacks/tagging/**"
       - "images/**"
       
-      - "!python/src/patch/README.md"
+      - "!python/okdp/patch/README.md"
       - "!images/README.md"
 
   workflow_dispatch:
@@ -57,7 +55,16 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+defaults:
+  run:
+    working-directory: ./docker-stacks
+
 jobs:
+  run-unit-tests:
+    uses: ./.github/workflows/unit-tests.yml
+    with:
+      runs-on: ubuntu-latest
+
   build-version-compatibility-matrix:
     runs-on: ubuntu-latest
     outputs:
@@ -80,11 +87,12 @@ jobs:
       - name: Build version compatibility matrix  🛠
         id: set-matrix
         run: |
-            python python/src/extension/matrix/version_compatibility_matrix.py \
-              --versions-matrix-path .build/.versions.yml \
-              --git-branch ${{ steps.branch.outputs.current_branch || steps.branch.outputs.tag}} >> $GITHUB_OUTPUT
+            python3 -m okdp.extension.matrix.version_compatibility_matrix \
+            --versions-matrix-path ../.build/.versions.yml \
+            --git-branch ${{ steps.branch.outputs.current_branch || steps.branch.outputs.tag}} >> $GITHUB_OUTPUT
             cat $GITHUB_OUTPUT
         shell: bash
+    needs: [run-unit-tests]
 
   build-base:
     name: build-base (python-${{ matrix.python.python_version }})
