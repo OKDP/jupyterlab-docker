@@ -25,7 +25,7 @@ on:
 
   push:
     branches:
-      - build-pipeline
+      - main
     paths:
       - ".github/workflows/main.yml"
       - ".github/workflows/build-base.yml"
@@ -95,13 +95,13 @@ jobs:
     needs: [run-unit-tests]
 
   build-base:
-    name: build-base (python-${{ matrix.python.python_version }})
+    name: build-test-base (python-${{ matrix.python.python_version }})
     strategy:
       # 3 Jobs in //, the base jobs run in sequential
       max-parallel: 3
       matrix:
         python: ${{ fromJson(needs.build-version-compatibility-matrix.outputs.python) }}
-    uses: ./.github/workflows/build-base.yml
+    uses: ./.github/workflows/build-test-base.yml
     with:
       python_version: ${{ matrix.python.python_version }}
       python_dev_tag: ${{ matrix.python.python_dev_tag }}
@@ -113,13 +113,13 @@ jobs:
     needs: [build-version-compatibility-matrix]
 
   build-datascience:
-    name: build-datascience (python-${{ matrix.python.python_version }})
+    name: build-test-datascience (python-${{ matrix.python.python_version }})
     strategy:
       # 1 matrix call = +2 jobs in // (check the number here build-datascience.yml)
       max-parallel: 1
       matrix:
         python: ${{ fromJson(needs.build-version-compatibility-matrix.outputs.python) }}
-    uses: ./.github/workflows/build-datascience.yml
+    uses: ./.github/workflows/build-test-datascience.yml
     with:
       python_dev_tag: ${{ matrix.python.python_dev_tag }}
       registry: ${{ vars.REGISTRY || 'ghcr.io' }}
@@ -130,13 +130,13 @@ jobs:
     needs: [build-version-compatibility-matrix, build-base]
   
   build-spark:
-    name: build-spark (python-${{ matrix.spark.python_version }})
+    name: build-test-spark (python-${{ matrix.spark.python_version }})
     strategy:
       # 2 jobs in //
       max-parallel: 2
       matrix: 
         spark: ${{ fromJson(needs.build-version-compatibility-matrix.outputs.spark) }}
-    uses: ./.github/workflows/build-spark.yml
+    uses: ./.github/workflows/build-test-spark.yml
     with:
       spark_download_url: ${{ matrix.spark.spark_download_url }}
       python_version: ${{ matrix.spark.python_version }}

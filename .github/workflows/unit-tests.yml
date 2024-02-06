@@ -22,7 +22,7 @@ jobs:
         uses: ./docker-stacks/.github/actions/create-dev-env
 
       - name: Run unit tests
-        run:  pytest python/tests -v
+        run:  pytest python/tests -v --color=yes
         shell: bash
 
 

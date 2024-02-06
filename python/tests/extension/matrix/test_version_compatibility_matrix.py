@@ -42,7 +42,7 @@ def test_group_versions_by(
     """
     assert group_versions_by(version_compatibility_matrix_data, group_on=group_on) == to_dict(expected)
 
-def test_build_matrix_empty(
+def test_filter_by_empty_versions(
     version_compatibility_matrix_data: list[dict],
 ) -> None:
     # Given: version_compatibility_matrix_data
@@ -67,7 +67,7 @@ def test_build_matrix_empty(
 
     assert to_dict(expected_build_matrix_empty) == spark_matrix
 
-def test_filter_spark_version(
+def test_filter_by_spark_version(
     version_compatibility_matrix_data: list[dict],
 ) -> None:
     # Given: version_compatibility_matrix_data
@@ -111,7 +111,7 @@ def test_filter_spark_version(
     assert spark_matrix == to_dict(expected_test_filter_spark_version)
     assert python_version == to_dict("""[{"python_version": "3.9", "python_dev_tag": "python3.9-main-latest"}]""")
 
-def test_filter_spark_version_scala_version(
+def test_filter_by_spark_version_and_scala_version(
     version_compatibility_matrix_data: list[dict],
 ) -> None:
     # Given: version_compatibility_matrix_data
@@ -145,7 +145,80 @@ def test_filter_spark_version_scala_version(
     assert spark_matrix == to_dict(expected_test_filter_spark_version)
     assert python_version == to_dict("""[{"python_version": "3.9", "python_dev_tag": "python3.9-main-latest"}]""")
     
-def test_filter_wrong_version(
+def test_filter_by_multiple_versions(
+    version_compatibility_matrix_data: list[dict],
+) -> None:
+    # Given: version_compatibility_matrix_data
+    version_compatibility_matrix = version_compatibility_matrix_data
+    # The python_version is not supported by the compatibilty matrix
+    build_matrix = {
+        "python_version": ["3.9", "3.10", "3.11"],
+        "spark_version": ["3.2.4", "3.3.4", "3.4.2", "3.5.0"],
+        "java_version": [11, 17],
+         "scala_version": [2.12]
+        }
+   
+    # When:
+    vcm = MockedVersionCompatibilityMatrix(compatibility_matrix = version_compatibility_matrix, 
+                                           build_matrix = build_matrix, 
+                                           git_branch="main")
+    vcm._normalize_values_()
+    (spark_matrix, python_version) = vcm.generate_matrix()
+
+    # Then: check the number of combinations when the build_matrix is empty
+    expected_nb_combinations = 4
+    actual_nb_combinations = len(spark_matrix)
+    assert actual_nb_combinations == expected_nb_combinations, f"spark_matrix: The number of elements should be {expected_nb_combinations}, got {actual_nb_combinations}"
+
+    assert spark_matrix == to_dict("""[
+                                            {
+                                                "python_version": "3.10",
+                                                "spark_version": "3.3.4",
+                                                "java_version": "17",
+                                                "scala_version": "",
+                                                "hadoop_version": "3",
+                                                "spark_download_url": "https://archive.apache.org/dist/spark/",
+                                                "spark_dev_tag": "spark3.3.4-python3.10-java17-scala2.12-main-latest",
+                                                "python_dev_tag": "python3.10-main-latest"
+                                            },
+                                            {
+                                                "python_version": "3.11",
+                                                "spark_version": "3.5.0",
+                                                "java_version": "17",
+                                                "scala_version": "",
+                                                "hadoop_version": "3",
+                                                "spark_download_url": "https://archive.apache.org/dist/spark/",
+                                                "spark_dev_tag": "spark3.5.0-python3.11-java17-scala2.12-main-latest",
+                                                "python_dev_tag": "python3.11-main-latest"
+                                            },
+                                            {
+                                                "python_version": "3.11",
+                                                "spark_version": "3.4.2",
+                                                "java_version": "17",
+                                                "scala_version": "",
+                                                "hadoop_version": "3",
+                                                "spark_download_url": "https://archive.apache.org/dist/spark/",
+                                                "spark_dev_tag": "spark3.4.2-python3.11-java17-scala2.12-main-latest",
+                                                "python_dev_tag": "python3.11-main-latest"
+                                            },
+                                            {
+                                                "python_version": "3.9",
+                                                "spark_version": "3.2.4",
+                                                "java_version": "11",
+                                                "scala_version": "",
+                                                "hadoop_version": "3.2",
+                                                "spark_download_url": "https://archive.apache.org/dist/spark/",
+                                                "spark_dev_tag": "spark3.2.4-python3.9-java11-scala2.12-main-latest",
+                                                "python_dev_tag": "python3.9-main-latest"
+                                            }
+                                        ]""")
+    assert python_version == to_dict("""[
+                                     {"python_version": "3.10", "python_dev_tag": "python3.10-main-latest"}, 
+                                     {"python_version": "3.11", "python_dev_tag": "python3.11-main-latest"}, 
+                                     {"python_version": "3.9", "python_dev_tag": "python3.9-main-latest"}
+                                     ]""")
+   
+def test_filter_by_wrong_version(
     version_compatibility_matrix_data: list[dict],
 ) -> None:
     # Given: version_compatibility_matrix_data
@@ -165,4 +238,3 @@ def test_filter_wrong_version(
     actual_nb_combinations = len(spark_matrix)
     assert actual_nb_combinations == expected_nb_combinations, f"spark_matrix: The number of elements should be {expected_nb_combinations}, got {actual_nb_combinations}"
     assert len(python_version) == expected_nb_combinations, f"python_version: The number of elements should be {expected_nb_combinations}, got {actual_nb_combinations}"
-   

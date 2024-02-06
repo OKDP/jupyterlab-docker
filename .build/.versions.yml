@@ -35,7 +35,7 @@ compatibility-matrix:
     scala_version: [2.12, 2.13]
     hadoop_version: 3
     spark_download_url: https://archive.apache.org/dist/spark/
-### Ovveride the matrix above by providing the versions to build
+### Override the matrix above by providing the versions to build
 ### 1- The build-matrix is empty: build with all possible combintations
 ### 2- Override specific versions: build with all possible combinations which are compatible with that specific versions
 ### 3- The versions not present on compatibility-matrix are ignored
