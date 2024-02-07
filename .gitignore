@@ -191,3 +191,7 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### vscode ###
+.vscode/
+
