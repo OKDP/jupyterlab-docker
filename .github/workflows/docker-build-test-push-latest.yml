@@ -57,9 +57,13 @@ jobs:
           username: ${{ secrets.registry_username }}
           password: ${{ secrets.registry_token }}
 
+      - name: Lower github repository owner
+        run:  echo "OWNER=${GITHUB_REPOSITORY_OWNER@L}" >> $GITHUB_ENV
+        shell: bash
+
       - name: Pull parent image 📥
         if: inputs.parent-image != ''
-        run: docker pull ${{ inputs.registry }}/${{ github.repository_owner }}/${{ inputs.parent-image }}
+        run: docker pull ${{ inputs.registry }}/$OWNER/${{ inputs.parent-image }}
         shell: bash
         
       - name: Prepare image build (build args) 📦
@@ -70,7 +74,7 @@ jobs:
           done
           if [[ "${{ inputs.parent-image }}" ]]
           then
-            BUILD_ARGS+="--build-arg BASE_CONTAINER=${{ inputs.registry }}/${{ github.repository_owner }}/${{ inputs.parent-image }} "
+            BUILD_ARGS+="--build-arg BASE_CONTAINER=${{ inputs.registry }}/$OWNER/${{ inputs.parent-image }} "
           fi
           echo "BUILD_ARGS=$BUILD_ARGS" >> $GITHUB_ENV
           # The short image name is necessary to run the tests (not pushed, local to jobs only)
@@ -86,10 +90,10 @@ jobs:
       - name: Build image 🛠
         run: |
           #docker buildx build --platform=linux/amd64 --rm --force-rm --tag ...
-          docker build --rm --force-rm --tag ${{ inputs.registry }}/${{ github.repository_owner }}/${{ inputs.image }} \
-            --tag ${{ inputs.registry }}/${{ github.repository_owner }}/$SHORT_IMAGE_NAME:latest images/$SHORT_IMAGE_NAME/ \
+          docker build --rm --force-rm --tag ${{ inputs.registry }}/$OWNER/${{ inputs.image }} \
+            --tag ${{ inputs.registry }}/$OWNER/$SHORT_IMAGE_NAME:latest images/$SHORT_IMAGE_NAME/ \
             --build-arg REGISTRY=${{ inputs.registry }} \
-            --build-arg OWNER=${{ github.repository_owner }} $BUILD_ARGS \
+            --build-arg OWNER=$OWNER $BUILD_ARGS \
             --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
             --label "org.opencontainers.image.description=$SHORT_IMAGE_NAME"
         env:
@@ -103,11 +107,11 @@ jobs:
         # Skip tests when running with ACT
         if: env.ACT_SKIP_TESTS == ''
         run: |
-            python3 -m tests.run_tests --short-image-name $SHORT_IMAGE_NAME --registry ${{ inputs.registry }} --owner ${{ github.repository_owner }}
+            python3 -m tests.run_tests --short-image-name $SHORT_IMAGE_NAME --registry ${{ inputs.registry }} --owner $OWNER
         shell: bash
       
       - name: Push latest tag image to registry 📤
-        run: docker push ${{ inputs.registry }}/${{ github.repository_owner }}/${{ inputs.image }}
+        run: docker push ${{ inputs.registry }}/$OWNER/${{ inputs.image }}
         shell: bash
 
 
