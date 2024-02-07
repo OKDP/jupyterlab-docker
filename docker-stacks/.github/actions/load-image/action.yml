@@ -1,0 +1,24 @@
+name: Load Docker image
+description: Download the image tar and load it to Docker
+
+inputs:
+  image:
+    description: Image name
+    required: true
+  platform:
+    description: Image platform
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Download built image 📥
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.image }}-${{ inputs.platform }}
+        path: /tmp/jupyter/images/
+    - name: Load downloaded image to docker 📥
+      run: |
+        zstd --uncompress --stdout --rm /tmp/jupyter/images/${{ inputs.image }}-${{ inputs.platform }}.tar.zst | docker load
+        docker image ls --all
+      shell: bash

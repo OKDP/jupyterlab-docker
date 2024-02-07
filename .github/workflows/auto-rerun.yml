@@ -1,0 +1,27 @@
+# Credit for the following workraound: https://github.com/orgs/community/discussions/67654#discussioncomment-8038649
+name: Automatic partital rerun on workflow failure
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        required: true
+      workflow_name:
+        required: true
+      workflow_sha:
+        required: true
+jobs:
+  rerun:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+      packages: write
+    steps:
+      - name: Re-run workflow ${{ inputs.workflow_name }}-${{ inputs.run_id }}
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          GH_DEBUG: api
+        run: |
+           gh run watch ${{ inputs.run_id }} > /dev/null 2>&1
+           gh run rerun ${{ inputs.run_id }} --failed

@@ -1,0 +1,82 @@
+name: Build, test, and push jupyter base images
+
+on:
+  workflow_call:
+    inputs:
+      python_version:
+        description: Python version
+        required: true
+        type: string
+      python_dev_tag:
+        description: Tag to use for latest base images (foundation, minimal, etc)
+        required: true
+        type: string
+      registry:
+        description: The list of tags space separated values
+        required: true
+        type: string
+      runs-on:
+        description: GitHub Actions Runner image
+        required: true
+        type: string
+    secrets:
+      registry_username:
+        required: true
+      registry_token:
+        required: true
+
+defaults:
+  run:
+    working-directory: ./docker-stacks
+
+jobs:
+
+  docker-stacks-foundation:
+    uses: ./.github/workflows/docker-build-test-push-latest.yml
+    with:
+      parent-image: ""
+      image: docker-stacks-foundation:${{ inputs.python_dev_tag }}
+      registry: ${{ inputs.registry }}
+      build-args:
+        PYTHON_VERSION=${{ inputs.python_version }}
+      runs-on: ubuntu-latest
+    secrets:
+      registry_username: ${{ secrets.registry_username }}
+      registry_token: ${{ secrets.registry_token }}
+
+  base-notebook:
+    uses: ./.github/workflows/docker-build-test-push-latest.yml
+    with:
+      parent-image: docker-stacks-foundation:${{ inputs.python_dev_tag }}
+      image: base-notebook:${{ inputs.python_dev_tag }}
+      registry: ${{ inputs.registry }}
+      runs-on: ubuntu-latest
+    secrets:
+      registry_username: ${{ secrets.registry_username }}
+      registry_token: ${{ secrets.registry_token }}
+    needs: [docker-stacks-foundation]
+
+  minimal-notebook:
+    uses: ./.github/workflows/docker-build-test-push-latest.yml
+    with:
+      parent-image: base-notebook:${{ inputs.python_dev_tag }}
+      image: minimal-notebook:${{ inputs.python_dev_tag }}
+      registry: ${{ inputs.registry }}
+      runs-on: ubuntu-latest
+    secrets:
+      registry_username: ${{ secrets.registry_username }}
+      registry_token: ${{ secrets.registry_token }}
+    needs: [base-notebook]
+
+  scipy-notebook:
+    uses: ./.github/workflows/docker-build-test-push-latest.yml
+    with:
+      parent-image: minimal-notebook:${{ inputs.python_dev_tag }}
+      image: scipy-notebook:${{ inputs.python_dev_tag }}
+      registry: ${{ inputs.registry }}
+      runs-on: ubuntu-latest
+    secrets:
+      registry_username: ${{ secrets.registry_username }}
+      registry_token: ${{ secrets.registry_token }}
+    needs: [minimal-notebook]
+
