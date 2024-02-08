@@ -1,7 +1,0 @@
-{
-    "python.analysis.extraPaths": [
-        "./python/okdp",
-        "./python/tests",
-        "./docker-stacks"
-    ]
-}

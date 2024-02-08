@@ -47,12 +47,16 @@ jobs:
           username: ${{ secrets.registry_username }}
           password: ${{ secrets.registry_token }}
 
+      - name: Lower github repository owner
+        run:  echo "OWNER=${GITHUB_REPOSITORY_OWNER@L}" >> $GITHUB_ENV
+        shell: bash
+
       - name: Pull latest tag image 📥
-        run: docker pull ${{ inputs.registry }}/${{ github.repository_owner }}/${{ inputs.image }}
+        run: docker pull ${{ inputs.registry }}/$OWNER/${{ inputs.image }}
         shell: bash
 
       - name: Apply tags to the loaded image 🏷
-        run: python3 -m okdp.extension.tagging.apply_tags --short-image-name ${{ inputs.image }} --registry ${{ inputs.registry }} --owner ${{ github.repository_owner }}
+        run: python3 -m okdp.extension.tagging.apply_tags --short-image-name ${{ inputs.image }} --registry ${{ inputs.registry }} --owner $OWNER
       
       - name: Prepare image push 📦
         run: |
@@ -61,5 +65,5 @@ jobs:
         shell: bash
 
       - name: Push Images to Registry 📤
-        run: docker push --all-tags ${{ inputs.registry }}/${{ github.repository_owner }}/$SHORT_IMAGE_NAME
+        run: docker push --all-tags ${{ inputs.registry }}/$OWNER/$SHORT_IMAGE_NAME
         shell: bash
