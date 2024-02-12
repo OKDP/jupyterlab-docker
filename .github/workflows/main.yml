@@ -1,4 +1,4 @@
-name: Build, test, and push jupyter images
+name: "[Main] Build, test, and push jupyter images"
 
 on:
   pull_request:
