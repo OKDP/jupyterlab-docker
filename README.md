@@ -27,7 +27,7 @@ The [main](.github/workflows/main.yml) build pipeline contains 6 main reusable w
 
 The build is based on the [version compatibility matrix](.build/.versions.yml).
 
-The [build-matrix](.build/.versions.yml#L42) section defines the components versions to build. It behaves like a filter of the parent [version compatibility matrix](.build/.versions.yml) to limit the versions combintations to build. The build process ensures only the compatible versions are built:
+The [build-matrix](.build/.versions.yml#L42) section defines the components versions to build. It behaves like a filter of the parent [compatibility-matrix](.build/.versions.yml#L5) section to limit the versions combintations to build. The build process ensures only the compatible versions are built:
 
 For example, the following build-matrix:
 
@@ -62,7 +62,7 @@ Development images with tags ```-<GIT-BRANCH>-latest``` suffix (ex.: spark3.2.4-
 The [official images](#tagging) are pushed to the [container registry](https://github.com/orgs/OKDP/packages) when:
 
 1. The workflow is triggered on the main branch only and
-2. The [tests](#build/test) are completed successfully
+2. The [tests](docker-stacks/tests) are completed successfully
 
 This prevents pull requests or developement branchs to push the official images before they are reviewed or tested. It also provides the flexibility to test against developement images ```-<GIT-BRANCH>-latest``` before they are officially pushed.
 
@@ -99,7 +99,24 @@ Here are some examples:
 
 Please, check the [container registry](https://github.com/orgs/OKDP/packages) for more images and tags.
 
-# Build locally with Act
+# Running github actions
+## Github container registry credentials
+
+Create the following [secrets and configuration variables](https://docs.github.com/en/actions/learn-github-actions/variables#creating-configuration-variables-for-a-repository) when running with your own github account or organization:
+
+| Variable               | Type                    | Default  | Description                                 |
+| -----------------------|-------------------------| ---------| ------------------------------------------- |
+| `REGISTRY`             | Configuration variable  | ghcr.io  | Container registry                          |
+| `REGISTRY_USERNAME`    | Secret variable         |          | Container registry username                 |
+| `REGISTRY_ROBOT_TOKEN` | Secret variable         |          | Container registry password or access token `(Scopes: write:packages/delete:packages)` |
+## Running with Github
+
+By default, the [workflow](.github/workflows/main.yml) runs automatically on the following events:
+
+- Push on the main branch with changes on the configured `paths` filters
+- Pull request on any branch
+
+## Running locally with act
 
 [Act](https://github.com/nektos/act) can be used to build and test locally.
 
