@@ -14,14 +14,14 @@ The project provides an up to date jupyter lab images especially for pyspark.
 # Images build workflow
 ## Build/Test
 
-The [main](.github/workflows/main.yml) build pipeline contains 6 main reusable workflows:
+The [ci](.github/workflows/ci.yml) build pipeline contains 6 main reusable workflows:
 
-1. [build-test-base](.github/workflows/build-test-base.yml): docker-stacks-foundation, base-notebook, minimal-notebook, scipy-notebook
-2. [build-test-datascience](.github/workflows/build-test-datascience.yml): r-notebook, julia-notebook, tensorflow-notebook, pytorch-notebook
-3. [build-test-spark](.github/workflows/build-test-spark.yml): pyspark-notebook, all-spark-notebook
-4. [tag-push](.github/workflows/docker-tag-push.yml): push the built images to the container registry (main branch only)
+1. [build-base-images-template](.github/workflows/build-base-images-template.yml): docker-stacks-foundation, base-notebook, minimal-notebook, scipy-notebook
+2. [build-datascience-images-template](.github/workflows/build-datascience-images-template.yml): r-notebook, julia-notebook, tensorflow-notebook, pytorch-notebook
+3. [build-spark-images-template](.github/workflows/build-spark-images-template.yml): pyspark-notebook, all-spark-notebook
+4. [publish](.github/workflows/publish.yml): push the built images to the container registry (main branch only)
 5. [auto-rerun](.github/workflows/auto-rerun.yml): partially re-run jobs in case of failures (github runner issues/main branch only)
-6. [unit-tests](.github/workflows/unit-tests.yml): run the unit tests (okdp extension) at every pipeline trigger
+6. [ci](.github/workflows/ci.yml): run ci pipeline at every contribution
 
 ![build pipeline](doc/_images/build-pipeline.png)
 
@@ -124,7 +124,7 @@ Here is an example command:
 
 ```shell
 $ act  --container-architecture linux/amd64  \
-       -W .github/workflows/main.yml \
+       -W .github/workflows/ci.yml \
        --env ACT_SKIP_TESTS=<true|false> \
        --var REGISTRY=ghcr.io  \
        --secret REGISTRY_USERNAME=<GITHUB_OWNER> \
@@ -142,7 +142,7 @@ $ act  --help
 
 # OKDP custom extensions
 
-1. [Tagging extension](python/okdp/extension/tagging) is based on the original [jupyter docker-stacks](docker-stacks/tagging) source files 
-2. [Patchs](python/okdp/patch/README.md) patchs the original [jupyter docker-stacks](docker-stacks/tests) in order to run the tests
-3. [Version compatibility matrix](python/okdp/extension/matrix) to generate all the compatible versions combintations for pyspark
-4. [Unit tests](python/tests) in order to test okdp extension at every pipeline run
+1. [Tagging extension](.build/python/okdp/extension/tagging) is based on the original [jupyter docker-stacks](docker-stacks/tagging) source files 
+2. [Patchs](.build/python/okdp/patch/README.md) patchs the original [jupyter docker-stacks](docker-stacks/tests) in order to run the tests
+3. [Version compatibility matrix](.build/python/okdp/extension/matrix) to generate all the compatible versions combintations for pyspark
+4. [Unit tests](.build/python/tests) in order to test okdp extension at every pipeline run
