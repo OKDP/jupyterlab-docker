@@ -1,0 +1,197 @@
+name: Jupyter build single image template
+
+on:
+  workflow_call:
+    inputs:
+      parent-image:
+        description: Parent image name
+        required: true
+        type: string
+      image:
+        description: Image name
+        required: true
+        type: string
+      publish_to_registry:
+        description: Wheter to push to the registry
+        required: false
+        type: string
+        default: "false"
+      ci_registry:
+        description: "The registry used to push ci images"
+        required: false
+        type: string
+        default: "ghcr.io"
+      registry:
+        description: The container registry 
+        required: false
+        type: string
+        default: "quay.io"
+      build-args:
+        description: Build args comma separated list, ex. PYTHON_VERSION=3.11, ...
+        required: false
+        type: string
+      git_latest_release_tag:
+        description: The latest remote release tag 
+        required: false
+        type: string
+        default: ""
+      runs-on:
+        description: GitHub Actions Runner image
+        required: true
+        type: string
+
+defaults:
+  run:
+    working-directory: ./docker-stacks
+
+jobs:
+  build-test-push:
+    name: ${{ inputs.image }}
+    runs-on: ${{ inputs.runs-on }}
+  
+    steps:
+      ### The publish and periodic rebuilds are based on the latest stable github release tag
+      - name: Checkout latest Github Release tag (${{ inputs.git_latest_release_tag }}) ⚡️
+        if: inputs.publish_to_registry == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_latest_release_tag }}
+
+      - name: Checkout Repo ⚡️
+        if: inputs.publish_to_registry == 'false'
+        uses: actions/checkout@v4
+
+      - name: Free up disk space 📦
+        uses: ./.github/actions/free-disk-space
+
+      - name: Set up QEMU and Docker Buildx 📦
+        uses: ./.github/actions/setup-buildx
+
+      - name: Setup dev env patchs 📦
+        uses: ./.github/actions/install-patchs-and-extension
+      
+      - name: Create dev environment 📦
+        uses: ./docker-stacks/.github/actions/create-dev-env
+      
+      - name: Expose git commit sha as env variable
+        uses: rlespinasse/git-commit-data-action@v1.5.0
+
+      - name: Login to the CI registry 🔐
+        if: inputs.publish_to_registry == 'false'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ inputs.ci_registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login into official registry 🔐
+        if: inputs.publish_to_registry == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ inputs.registry }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_ROBOT_TOKEN }}
+          
+      - name: Set CI Github container registry namespace
+        if: inputs.publish_to_registry == 'false'
+        run:  |
+          echo "OWNER=${GITHUB_REPOSITORY_OWNER@L}" >> $GITHUB_ENV
+          echo "REGISTRY=${{ inputs.ci_registry }}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Set official publish container registry namespace
+        if: inputs.publish_to_registry == 'true'
+        run:  |
+          echo "OWNER=${GITHUB_REPOSITORY_OWNER@L}/jupyter" >> $GITHUB_ENV
+          echo "REGISTRY=${{ inputs.registry }}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Pull parent image 📥
+        if: inputs.parent-image != ''
+        run: docker pull $REGISTRY/$OWNER/${{ inputs.parent-image }}
+        shell: bash
+        
+      - name: Prepare image build (build-args) 📦
+        run: |
+          for build_arg in ${{ inputs.build-args }}
+          do
+            BUILD_ARGS+="--build-arg $build_arg "
+          done
+          if [[ "${{ inputs.parent-image }}" ]]
+          then
+            BUILD_ARGS+="--build-arg BASE_CONTAINER=$REGISTRY/$OWNER/${{ inputs.parent-image }} "
+          fi
+          echo "BUILD_ARGS=$BUILD_ARGS" >> $GITHUB_ENV
+          # The short image name is necessary to run the tests (not pushed, local to jobs only)
+          echo "SHORT_IMAGE_NAME=${{ inputs.image }}" | awk -F: '{print $1}' >> $GITHUB_ENV
+        shell: bash
+
+      - name: Patch PySpark Dockerfile to be compatible with java +11 📦
+        if: contains(inputs.image, 'pyspark-notebook:') && contains(inputs.build-args, 'spark_version=3.2.') && ! contains(inputs.build-args, 'openjdk_version=8')
+        run: |
+          cat pyspark-notebook/Dockerfile.spark3.2.x >> docker-stacks/images/$SHORT_IMAGE_NAME/Dockerfile
+        working-directory: ./
+        shell: bash
+
+      - name: Add additional librairies 📦
+        run: |
+          if test -f "$SHORT_IMAGE_NAME/Dockerfile"
+          then
+            cat $SHORT_IMAGE_NAME/Dockerfile >> docker-stacks/images/$SHORT_IMAGE_NAME/Dockerfile
+            cd $SHORT_IMAGE_NAME
+            cp $(ls | grep -v Dockerfile) ../docker-stacks/images/$SHORT_IMAGE_NAME/
+          fi
+        working-directory: ./
+        shell: bash
+
+      - name: Build image 🛠
+        run: |
+          #docker buildx build --platform=linux/amd64 --rm --force-rm --tag ...
+          docker build --rm --force-rm --tag $REGISTRY/$OWNER/${{ inputs.image }} \
+            --tag $REGISTRY/$OWNER/$SHORT_IMAGE_NAME:latest images/$SHORT_IMAGE_NAME/ \
+            --build-arg REGISTRY=$REGISTRY \
+            --build-arg OWNER=$OWNER $BUILD_ARGS \
+            --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
+            --label "org.opencontainers.image.description=$SHORT_IMAGE_NAME"
+        env:
+          DOCKER_BUILDKIT: 1
+          # Full logs for CI build
+          BUILDKIT_PROGRESS: plain
+        shell: bash
+
+      # Run docker-stacks tests (docker-stacks/tests)
+      - name: Run tests ✅
+        # Skip tests when running with ACT
+        if: inputs.publish_to_registry == 'false' && env.ACT_SKIP_TESTS == ''
+        run: |
+            python3 -m tests.run_tests --short-image-name $SHORT_IMAGE_NAME --registry ${{ inputs.ci_registry }} --owner $OWNER
+        shell: bash
+      
+      - name: Push to ci registry 📤
+        if: inputs.publish_to_registry == 'false'
+        run: docker push ${{ inputs.ci_registry }}/$OWNER/${{ inputs.image }}
+        shell: bash
+
+      ### Publish steps
+      ### The publish and periodic rebuilds are based on the latest stable github release tag
+      - name: Apply tags to the loaded image 🏷
+        if: inputs.publish_to_registry == 'true'
+        run: |
+          python3 -m okdp.extension.tagging.apply_tags --short-image-name ${{ inputs.image }} \
+                  --registry ${{ inputs.registry }} \
+                  --owner $OWNER
+    
+      - name: Prepare image push 📦
+        if: inputs.publish_to_registry == 'true'
+        run: |
+          # The short image name (without tag) is necessary to push to the registry
+          echo "SHORT_IMAGE_NAME=${{ inputs.image }}" | awk -F: '{print $1}' >> $GITHUB_ENV
+        shell: bash
+
+      - name: Push to official registry 📤
+        if: inputs.publish_to_registry == 'true'
+        run: docker push --all-tags ${{ inputs.registry }}/$OWNER/$SHORT_IMAGE_NAME
+        shell: bash
+
+
+      

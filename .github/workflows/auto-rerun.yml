@@ -1,4 +1,4 @@
-# Credit for the following workraound: https://github.com/orgs/community/discussions/67654#discussioncomment-8038649
+# https://github.com/orgs/community/discussions/67654#discussioncomment-8038649
 name: Automatic partital rerun on workflow failure
 on:
   workflow_dispatch:
@@ -23,5 +23,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_DEBUG: api
         run: |
-           gh run watch ${{ inputs.run_id }} > /dev/null 2>&1
            gh run rerun ${{ inputs.run_id }} --failed

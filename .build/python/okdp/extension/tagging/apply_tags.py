@@ -75,7 +75,7 @@ if __name__ == "__main__":
         "--registry",
         required=True,
         type=str,
-        choices=["ghcr.io"],
+        choices=["quay.io", "ghcr.io"],
         help="Image registry",
     )
     arg_parser.add_argument(

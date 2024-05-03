@@ -4,7 +4,7 @@ The directory contains a list of patchs for original dockerfiles:
 
 ## List of patchs:
 
-[PySpark 3.2.x java 11 support](patch/pyspark-notebook/Dockerfile.spark3.2.x#L6):  Add  "--add-opens options" to be compatible with java 11 (<=3.2.x)
+[PySpark 3.2.x java 11 support](Dockerfile.spark3.2.x#L6):  Add  "--add-opens options" to be compatible with java 11 (<=3.2.x)
 
 The options are picked from the java module: [JavaModuleOptions.java](https://github.com/apache/spark/blob/8706ccdf461c3b7f82b94b9e953ca4547f551ab1/launcher/src/main/java/org/apache/spark/launcher/JavaModuleOptions.java)
 
