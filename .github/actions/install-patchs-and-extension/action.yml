@@ -6,15 +6,15 @@ runs:
   steps:
   - name: Setup dev env requirement 📦
     run: |
-      cp -f requirements-dev.txt ../
-      cat ../python/requirements-extended.txt >> ../requirements-dev.txt
+      cp -f requirements-dev.txt ../requirements-dev.txt
+      cat ../.build/python/requirements-dev.txt >> ../requirements-dev.txt
     working-directory: ./docker-stacks
     shell: bash
 
   - name: Copy patchs 📦
     run: |
-      cp -fr ../python/okdp/patch/* ./
-      cp -fr ../python/okdp ./
+      cp -fr ../.build/python/okdp/patch/* ./
+      cp -fr ../.build/python/okdp ./
     working-directory: ./docker-stacks
     shell: bash
 

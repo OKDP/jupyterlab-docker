@@ -1,4 +1,4 @@
-name: Build, test, and push jupyter Spark images
+name: Jupyter pyspark build images template
 
 on:
   workflow_call:
@@ -35,31 +35,34 @@ on:
         description: Tag to use for latest pyspark images (pyspark, all-spark, etc)
         required: true
         type: string
+      publish_to_registry:
+        description: Wheter to push to the registry
+        required: false
+        type: string
+        default: "false"
       registry:
         description: The list of tags space separated values
-        required: true
+        required: false
         type: string
+      git_latest_release_tag:
+        description: The latest remote release tag 
+        required: false
+        type: string
+        default: ""
       runs-on:
         description: GitHub Actions Runner image
         required: true
         type: string
-    secrets:
-      registry_username:
-        required: true
-      registry_token:
-        required: true
-
-defaults:
-  run:
-    working-directory: ./docker-stacks
 
 jobs:
   pyspark:
-    uses: ./.github/workflows/docker-build-test-push-latest.yml
+    uses: ./.github/workflows/build-image-template.yml
     with:
       parent-image: scipy-notebook:${{ inputs.python_dev_tag }}
       image: pyspark-notebook:${{ inputs.spark_dev_tag }}
       registry: ${{ inputs.registry }}
+      publish_to_registry: ${{ inputs.publish_to_registry }}
+      git_latest_release_tag: ${{ inputs.git_latest_release_tag }}
       runs-on: ${{ inputs.runs-on }}
       build-args:
         spark_download_url=${{ inputs.spark_download_url }}
@@ -67,19 +70,17 @@ jobs:
         openjdk_version=${{ inputs.java_version }}
         scala_version=${{ inputs.scala_version }}
         hadoop_version=${{ inputs.hadoop_version }}
-    secrets:
-      registry_username: ${{ secrets.registry_username }}
-      registry_token: ${{ secrets.registry_token }}
+    secrets: inherit
 
   all-spark:
-    uses: ./.github/workflows/docker-build-test-push-latest.yml
+    uses: ./.github/workflows/build-image-template.yml
     with:
       parent-image: pyspark-notebook:${{ inputs.spark_dev_tag }}
       image: all-spark-notebook:${{ inputs.spark_dev_tag }}
       registry: ${{ inputs.registry }}
+      publish_to_registry: ${{ inputs.publish_to_registry }}
+      git_latest_release_tag: ${{ inputs.git_latest_release_tag }}
       runs-on: ${{ inputs.runs-on }}
-    secrets:
-      registry_username: ${{ secrets.registry_username }}
-      registry_token: ${{ secrets.registry_token }}
+    secrets: inherit
     needs: [pyspark]
 

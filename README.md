@@ -62,7 +62,7 @@ Development images with tags ```-<GIT-BRANCH>-latest``` suffix (ex.: spark3.2.4-
 The [official images](#tagging) are publiqhed to the [okdp quay.io registry](https://quay.io/organization/okdp):
 
 1. At every release, and,
-2. Periodically, every mondat at 05H00 GMT
+2. Periodically, every monday at 05H00 GMT
 
 
 ## Tagging

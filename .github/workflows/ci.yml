@@ -1,0 +1,166 @@
+name: ci
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/ci.yml"
+      - ".github/workflows/publish.yml"
+      - ".github/workflows/build-image-template.yml"
+      - ".github/workflows/build-base-images-template.yml"
+      - ".github/workflows/build-datascience-images-template.yml"
+      - ".github/workflows/build-spark-images-template.yml"
+      - ".github/actions/install-patchs-and-extension/action.yml"
+      - ".github/actions/setup-buildx/action.yml"
+      - ".github/actions/free-disk-space/action.yml"
+
+      - ".build/.versions.yml"
+      - ".build/python/okdp/**"
+
+      - "docker-stacks/images/**"
+      - "docker-stacks/tests/**"
+      - "docker-stacks/tagging/**"
+
+      - "all-spark-notebook/**"
+      - "base-notebook/**"
+      - "datascience-notebook/**"
+      - "docker-stacks-foundation/**"
+      - "julia-notebook/**"
+      - "minimal-notebook/**"
+      - "pytorch-notebook/**"
+      - "r-notebook/**"
+      - "scipy-notebook/**"
+      - "tensorflow-notebook/**"
+      - "pyspark-notebook/**"
+
+      - "!.build/python/okdp/patch/README.md"
+      - "!doc/**"
+      - "!README.md"
+
+  push:
+    paths:
+      - ".github/workflows/ci.yml"
+      - ".github/workflows/publish.yml"
+      - ".github/workflows/build-image-template.yml"
+      - ".github/workflows/build-base-images-template.yml"
+      - ".github/workflows/build-datascience-images-template.yml"
+      - ".github/workflows/build-spark-images-template.yml"
+      - ".github/actions/install-patchs-and-extension/action.yml"
+      - ".github/actions/setup-buildx/action.yml"
+      - ".github/actions/free-disk-space/action.yml"
+
+      - ".build/.versions.yml"
+      - ".build/python/okdp/**"
+
+      - "docker-stacks/images/**"
+      - "docker-stacks/tests/**"
+      - "docker-stacks/tagging/**"
+
+      - "all-spark-notebook/**"
+      - "base-notebook/**"
+      - "datascience-notebook/**"
+      - "docker-stacks-foundation/**"
+      - "julia-notebook/**"
+      - "minimal-notebook/**"
+      - "pytorch-notebook/**"
+      - "r-notebook/**"
+      - "scipy-notebook/**"
+      - "tensorflow-notebook/**"
+      - "pyspark-notebook/**"
+      
+      - "!.build/python/okdp/patch/README.md"
+      - "!doc/**"
+      - "!README.md"
+
+  workflow_dispatch:
+
+# https://docs.github.com/en/actions/using-jobs/using-concurrency
+concurrency:
+  # Only cancel in-progress jobs or runs for the current workflow - matches against branch & tags
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ./docker-stacks
+    
+permissions:
+  packages: write
+
+jobs:
+
+  build-version-compatibility-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      spark: ${{ steps.set-matrix.outputs.spark }}
+      python: ${{ steps.set-matrix.outputs.python }}
+    steps:
+      - name: Checkout Repo ⚡️
+        uses: actions/checkout@v4
+      
+      - name: Setup dev env patchs 📦
+        uses: ./.github/actions/install-patchs-and-extension
+      
+      - name: Create dev environment 📦
+        uses: ./docker-stacks/.github/actions/create-dev-env
+      
+      - name: Run unit tests (versions compatibility matrix)
+        run:  pytest python/tests -v --color=yes
+        working-directory: ./.build
+        shell: bash
+
+      - name: Get current branch 📦
+        id: branch
+        uses: tj-actions/branch-names@v8
+    
+      - name: Build version compatibility matrix  🛠
+        id: set-matrix
+        run: |
+            python3 -m okdp.extension.matrix.version_compatibility_matrix \
+            --versions-matrix-path ../.build/.versions.yml \
+            --git-branch ${{ steps.branch.outputs.current_branch || steps.branch.outputs.tag}} >> $GITHUB_OUTPUT
+            cat $GITHUB_OUTPUT
+        shell: bash
+
+  build-base:
+    name: build-base (python-${{ matrix.python.python_version }})
+    strategy:
+      matrix:
+        python: ${{ fromJson(needs.build-version-compatibility-matrix.outputs.python) }}
+    uses: ./.github/workflows/build-base-images-template.yml
+    with:
+      python_version: ${{ matrix.python.python_version }}
+      python_dev_tag: ${{ matrix.python.python_dev_tag }}
+      runs-on: ubuntu-latest
+    needs: [build-version-compatibility-matrix]
+
+  build-datascience:
+    name: build-datascience (python-${{ matrix.python.python_version }})
+    strategy:
+      matrix:
+        python: ${{ fromJson(needs.build-version-compatibility-matrix.outputs.python) }}
+    uses: ./.github/workflows/build-datascience-images-template.yml
+    with:
+      python_dev_tag: ${{ matrix.python.python_dev_tag }}
+      runs-on: ubuntu-latest
+    needs: [build-version-compatibility-matrix, build-base]
+  
+  build-spark:
+    name: build-spark (python-${{ matrix.spark.python_version }})
+    strategy:
+      matrix: 
+        spark: ${{ fromJson(needs.build-version-compatibility-matrix.outputs.spark) }}
+    uses: ./.github/workflows/build-spark-images-template.yml
+    with:
+      spark_download_url: ${{ matrix.spark.spark_download_url }}
+      python_version: ${{ matrix.spark.python_version }}
+      spark_version: ${{ matrix.spark.spark_version }}
+      java_version: ${{ matrix.spark.java_version }}
+      scala_version: ${{ matrix.spark.scala_version }}
+      hadoop_version: ${{ matrix.spark.hadoop_version }}
+      python_dev_tag: ${{ matrix.spark.python_dev_tag }}
+      spark_dev_tag: ${{ matrix.spark.spark_dev_tag }}
+      runs-on: ubuntu-latest
+    needs: [build-version-compatibility-matrix, build-base]
+    
