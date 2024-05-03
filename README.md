@@ -14,14 +14,14 @@ The project provides an up to date jupyter lab images especially for pyspark.
 # Images build workflow
 ## Build/Test
 
-The [main](.github/workflows/main.yml) build pipeline contains 6 main reusable workflows:
+The [ci](.github/workflows/ci.yml) build pipeline contains 6 main reusable workflows:
 
-1. [build-test-base](.github/workflows/build-test-base.yml): docker-stacks-foundation, base-notebook, minimal-notebook, scipy-notebook
-2. [build-test-datascience](.github/workflows/build-test-datascience.yml): r-notebook, julia-notebook, tensorflow-notebook, pytorch-notebook
-3. [build-test-spark](.github/workflows/build-test-spark.yml): pyspark-notebook, all-spark-notebook
-4. [tag-push](.github/workflows/docker-tag-push.yml): push the built images to the container registry (main branch only)
+1. [build-base-images-template](.github/workflows/build-base-images-template.yml): docker-stacks-foundation, base-notebook, minimal-notebook, scipy-notebook
+2. [build-datascience-images-template](.github/workflows/build-datascience-images-template.yml): r-notebook, julia-notebook, tensorflow-notebook, pytorch-notebook
+3. [build-spark-images-template](.github/workflows/build-spark-images-template.yml): pyspark-notebook, all-spark-notebook
+4. [publish](.github/workflows/publish.yml): push the built images to the container registry (main branch only)
 5. [auto-rerun](.github/workflows/auto-rerun.yml): partially re-run jobs in case of failures (github runner issues/main branch only)
-6. [unit-tests](.github/workflows/unit-tests.yml): run the unit tests (okdp extension) at every pipeline trigger
+6. [ci](.github/workflows/ci.yml): run ci pipeline at every contribution
 
 ![build pipeline](doc/_images/build-pipeline.png)
 
@@ -55,16 +55,15 @@ All compatible versions combinations are built.
 
 Finally, all the images are tested against the original [tests](docker-stacks/tests) at every pipeline trigger
 
-## Push
+## Publishing
 
 Development images with tags ```-<GIT-BRANCH>-latest``` suffix (ex.: spark3.2.4-python3.9-java11-scala2.12-<GIT-BRANCH>-latest) are produced at every pipeline run regardless of the git branch (main or not).
 
-The [official images](#tagging) are pushed to the [container registry](https://github.com/orgs/OKDP/packages) when:
+The [official images](#tagging) are publiqhed to the [okdp quay.io registry](https://quay.io/organization/okdp):
 
-1. The workflow is triggered on the main branch only and
-2. The [tests](docker-stacks/tests) are completed successfully
+1. At every release, and,
+2. Periodically, every mondat at 05H00 GMT
 
-This prevents pull requests or developement branchs to push the official images before they are reviewed or tested. It also provides the flexibility to test against developement images ```-<GIT-BRANCH>-latest``` before they are officially pushed.
 
 ## Tagging
 
@@ -97,24 +96,18 @@ Here are some examples:
 - spark-3.5.0-python-3.11.7-r-4.3.2-java-17.0.9-scala-2.12.18-hub-4.0.2-lab-4.1.0
 - spark-3.5.0-python-3.11.7-r-4.3.2-java-17.0.9-scala-2.12.18-hub-4.0.2-lab-4.1.0-2024-02-06
 
-Please, check the [container registry](https://github.com/orgs/OKDP/packages) for more images and tags.
+Please, check the [okdp quay.io container registry](https://quay.io/organization/okdp) for more images and tags.
 
 # Running github actions
-## Github container registry credentials
+## Official registry (quai.io) credentials
 
 Create the following [secrets and configuration variables](https://docs.github.com/en/actions/learn-github-actions/variables#creating-configuration-variables-for-a-repository) when running with your own github account or organization:
 
 | Variable               | Type                    | Default  | Description                                 |
 | -----------------------|-------------------------| ---------| ------------------------------------------- |
-| `REGISTRY`             | Configuration variable  | ghcr.io  | Container registry                          |
+| `REGISTRY`             | Configuration variable  | quay.io  | Container registry                          |
 | `REGISTRY_USERNAME`    | Secret variable         |          | Container registry username                 |
 | `REGISTRY_ROBOT_TOKEN` | Secret variable         |          | Container registry password or access token `(Scopes: write:packages/delete:packages)` |
-## Running with Github
-
-By default, the [workflow](.github/workflows/main.yml) runs automatically on the following events:
-
-- Push on the main branch with changes on the configured `paths` filters
-- Pull request on any branch
 
 ## Running locally with act
 
@@ -124,11 +117,9 @@ Here is an example command:
 
 ```shell
 $ act  --container-architecture linux/amd64  \
-       -W .github/workflows/main.yml \
+       -W .github/workflows/ci.yml \
        --env ACT_SKIP_TESTS=<true|false> \
-       --var REGISTRY=ghcr.io  \
-       --secret REGISTRY_USERNAME=<GITHUB_OWNER> \
-       --secret REGISTRY_ROBOT_TOKEN=<GITHUB_CONTAINER_REGISTRY_TOKEN>
+       --secret GITHUB_TOKEN=<GITHUB_TOKEN> \
        --rm
 ```
 
@@ -142,7 +133,7 @@ $ act  --help
 
 # OKDP custom extensions
 
-1. [Tagging extension](python/okdp/extension/tagging) is based on the original [jupyter docker-stacks](docker-stacks/tagging) source files 
-2. [Patchs](python/okdp/patch/README.md) patchs the original [jupyter docker-stacks](docker-stacks/tests) in order to run the tests
-3. [Version compatibility matrix](python/okdp/extension/matrix) to generate all the compatible versions combintations for pyspark
-4. [Unit tests](python/tests) in order to test okdp extension at every pipeline run
+1. [Tagging extension](.build/python/okdp/extension/tagging) is based on the original [jupyter docker-stacks](docker-stacks/tagging) source files 
+2. [Patchs](.build/python/okdp/patch/README.md) patchs the original [jupyter docker-stacks](docker-stacks/tests) in order to run the tests
+3. [Version compatibility matrix](.build/python/okdp/extension/matrix) to generate all the compatible versions combintations for pyspark
+4. [Unit tests](.build/python/tests) in order to test okdp extension at every pipeline run
