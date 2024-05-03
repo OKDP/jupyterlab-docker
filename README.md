@@ -109,12 +109,6 @@ Create the following [secrets and configuration variables](https://docs.github.c
 | `REGISTRY`             | Configuration variable  | ghcr.io  | Container registry                          |
 | `REGISTRY_USERNAME`    | Secret variable         |          | Container registry username                 |
 | `REGISTRY_ROBOT_TOKEN` | Secret variable         |          | Container registry password or access token `(Scopes: write:packages/delete:packages)` |
-## Running with Github
-
-By default, the [workflow](.github/workflows/main.yml) runs automatically on the following events:
-
-- Push on the main branch with changes on the configured `paths` filters
-- Pull request on any branch
 
 ## Running locally with act
 
