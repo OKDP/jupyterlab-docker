@@ -122,7 +122,7 @@ jobs:
       git_latest_release_tag: ${{ needs.latest-github-release.outputs.tag_name }}
       runs-on: ubuntu-latest
     secrets: inherit
-    needs: [publish-base]
+    needs: [latest-github-release, build-version-compatibility-matrix, publish-base]
 
   publish-spark:
     if: github.repository_owner == 'OKDP' && needs.latest-github-release.outputs.tag_name != ''
@@ -144,7 +144,7 @@ jobs:
       git_latest_release_tag: ${{ needs.latest-github-release.outputs.tag_name }}
       runs-on: ubuntu-latest
     secrets: inherit
-    needs: [publish-base]
+    needs: [latest-github-release, build-version-compatibility-matrix, publish-base]
 
   ## https://github.com/orgs/community/discussions/67654#discussioncomment-8038649
   partial-rerun-on-failure:
