@@ -16,14 +16,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  update-overview:
+  registry-move:
     # To be able to use the latest skopeo
     runs-on: macos-latest
+    timeout-minutes: 5
     if: github.repository_owner == 'jupyter' || github.repository_owner == 'mathbunnyru'
 
     steps:
       - name: Checkout Repo ⚡️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install skopeo and Docker 📦
         run: |
@@ -32,12 +33,18 @@ jobs:
 
       - name: Login to Quay.io 🔐
         if: env.PUSH_TO_REGISTRY == 'true'
-        run: skopeo login quay.io --username ${{ secrets.QUAY_USERNAME }} --password ${{ secrets.QUAY_ROBOT_TOKEN }}
+        run: |
+          skopeo login quay.io \
+            --username ${{ secrets.QUAY_USERNAME }} \
+            --password ${{ secrets.QUAY_ROBOT_TOKEN }}
 
       - name: Move image from Docker Hub to Quay.io 🐳
         if: env.PUSH_TO_REGISTRY == 'true'
         run: |
-          skopeo copy --multi-arch all docker://${{ env.OWNER }}/${{ matrix.image }}:${{ matrix.tag }} docker://quay.io/${{ env.OWNER }}/${{ matrix.image }}:${{ matrix.tag }}
+          skopeo copy \
+            --multi-arch all \
+            docker://${{ env.OWNER }}/${{ matrix.image }}:${{ matrix.tag }} \
+            docker://quay.io/${{ env.OWNER }}/${{ matrix.image }}:${{ matrix.tag }}
 
     strategy:
       fail-fast: false

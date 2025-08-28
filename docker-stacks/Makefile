@@ -14,9 +14,9 @@ ALL_IMAGES:= \
 	docker-stacks-foundation \
 	base-notebook \
 	minimal-notebook \
+	scipy-notebook \
 	r-notebook \
 	julia-notebook \
-	scipy-notebook \
 	tensorflow-notebook \
 	pytorch-notebook \
 	datascience-notebook \
@@ -35,9 +35,18 @@ help:
 
 
 
+# Note that `ROOT_IMAGE` and `PYTHON_VERSION` arguments are only applicable to the `docker-stacks-foundation` image
 build/%: DOCKER_BUILD_ARGS?=
+build/%: ROOT_IMAGE?=ubuntu:24.04
+build/%: PYTHON_VERSION?=3.13
 build/%: ## build the latest image for a stack using the system's architecture
-	docker build $(DOCKER_BUILD_ARGS) --rm --force-rm --tag "$(REGISTRY)/$(OWNER)/$(notdir $@):latest" "./images/$(notdir $@)" --build-arg REGISTRY="$(REGISTRY)" --build-arg OWNER="$(OWNER)"
+	docker build $(DOCKER_BUILD_ARGS) --rm --force-rm \
+	  --tag "$(REGISTRY)/$(OWNER)/$(notdir $@)" \
+	  "./images/$(notdir $@)" \
+	  --build-arg REGISTRY="$(REGISTRY)" \
+	  --build-arg OWNER="$(OWNER)" \
+	  --build-arg ROOT_IMAGE="$(ROOT_IMAGE)" \
+	  --build-arg PYTHON_VERSION="$(PYTHON_VERSION)"
 	@echo -n "Built image size: "
 	@docker images "$(REGISTRY)/$(OWNER)/$(notdir $@):latest" --format "{{.Size}}"
 build-all: $(foreach I, $(ALL_IMAGES), build/$(I)) ## build all stacks
@@ -45,7 +54,7 @@ build-all: $(foreach I, $(ALL_IMAGES), build/$(I)) ## build all stacks
 
 
 check-outdated/%: ## check the outdated mamba/conda packages in a stack and produce a report
-	@TEST_IMAGE="$(REGISTRY)/$(OWNER)/$(notdir $@)" pytest tests/docker-stacks-foundation/test_outdated.py
+	@TEST_IMAGE="$(REGISTRY)/$(OWNER)/$(notdir $@)" pytest tests/by_image/docker-stacks-foundation/test_outdated.py
 check-outdated-all: $(foreach I, $(ALL_IMAGES), check-outdated/$(I)) ## check all the stacks for outdated packages
 
 
@@ -62,15 +71,35 @@ cont-clean-all: cont-stop-all cont-rm-all ## clean all containers (stop + rm)
 
 docs: ## build HTML documentation
 	sphinx-build -W --keep-going --color docs/ docs/_build/
-linkcheck-docs: ## check broken links
+linkcheck-docs: ## check for broken links
 	sphinx-build -W --keep-going --color -b linkcheck docs/ docs/_build/
 
 
 
+hook/%: VARIANT?=default
+hook/%: REPOSITORY?=$(OWNER)/docker-stacks
 hook/%: ## run post-build hooks for an image
-	python3 -m tagging.write_tags_file --short-image-name "$(notdir $@)" --tags-dir /tmp/jupyter/tags/ --registry "$(REGISTRY)" --owner "$(OWNER)" && \
-	python3 -m tagging.write_manifest --short-image-name "$(notdir $@)" --hist-lines-dir /tmp/jupyter/hist_lines/ --manifests-dir /tmp/jupyter/manifests/ --registry "$(REGISTRY)" --owner "$(OWNER)" && \
-	python3 -m tagging.apply_tags --short-image-name "$(notdir $@)" --tags-dir /tmp/jupyter/tags/ --platform "$(shell uname -m)" --registry "$(REGISTRY)" --owner "$(OWNER)"
+	python3 -m tagging.apps.write_tags_file \
+	  --registry "$(REGISTRY)" \
+	  --owner "$(OWNER)" \
+	  --image "$(notdir $@)" \
+	  --variant "$(VARIANT)" \
+	  --tags-dir /tmp/jupyter/tags/
+	python3 -m tagging.apps.write_manifest \
+	  --registry "$(REGISTRY)" \
+	  --owner "$(OWNER)" \
+	  --image "$(notdir $@)" \
+	  --variant "$(VARIANT)" \
+	  --hist-lines-dir /tmp/jupyter/hist_lines/ \
+	  --manifests-dir /tmp/jupyter/manifests/ \
+	  --repository "$(REPOSITORY)"
+	python3 -m tagging.apps.apply_tags \
+	  --registry "$(REGISTRY)" \
+	  --owner "$(OWNER)" \
+	  --image "$(notdir $@)" \
+	  --variant "$(VARIANT)" \
+	  --platform "$(shell uname -m)" \
+	  --tags-dir /tmp/jupyter/tags/
 hook-all: $(foreach I, $(ALL_IMAGES), hook/$(I)) ## run post-build hooks for all images
 
 
@@ -107,5 +136,8 @@ run-sudo-shell/%: ## run bash in interactive mode as root in a stack
 
 
 test/%: ## run tests against a stack
-	python3 -m tests.run_tests --short-image-name "$(notdir $@)" --registry "$(REGISTRY)" --owner "$(OWNER)"
+	python3 -m tests.run_tests \
+	  --registry "$(REGISTRY)" \
+	  --owner "$(OWNER)" \
+	  --image "$(notdir $@)"
 test-all: $(foreach I, $(ALL_IMAGES), test/$(I)) ## test all stacks

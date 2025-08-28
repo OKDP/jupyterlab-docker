@@ -35,7 +35,7 @@ You do so by passing arguments to the `docker run` command.
 
 - `-e NB_USER=<username>` - The desired username and associated home folder.
   The default value is `jovyan`.
-  Setting `NB_USER` refits the `jovyan` default user and ensures that the desired user has the correct file permissions
+  Setting `NB_USER` redefines the `jovyan` default user and ensures that the desired user has the correct file permissions
   for the new home directory created at `/home/<username>`.
   For this option to take effect, you **must** run the container with `--user root`, set the working directory `-w "/home/<username>"`
   and set the environment variable `-e CHOWN_HOME=yes`.
@@ -62,8 +62,8 @@ You do so by passing arguments to the `docker run` command.
   This feature is useful when mounting host volumes with specific owner permissions.
   You **must** run the container with `--user root` for this option to take effect.
   (The startup script will `su ${NB_USER}` after adjusting the user ID.)
-  Instead, you might consider using the modern Docker-native options [`--user`](https://docs.docker.com/engine/reference/run/#user) and
-  [`--group-add`](https://docs.docker.com/engine/reference/run/#additional-groups) - see the last bullet in this section for more details.
+  Instead, you might consider using the modern Docker-native options [`--user`](https://docs.docker.com/engine/containers/run/#user) and
+  [`--group-add`](https://docs.docker.com/engine/containers/run/#additional-groups) - see the last bullet in this section for more details.
   See bullet points regarding `--user` and `--group-add`.
 
 - `-e NB_GID=<numeric gid>` - Instructs the startup script to change the primary group of `${NB_USER}` to `${NB_GID}`
@@ -90,7 +90,7 @@ You do so by passing arguments to the `docker run` command.
   While the default `umask` value should be sufficient for most use cases, you can set the `NB_UMASK` value to fit your requirements.
 
   ```{note}
-  `NB_UMASK` when set only applies to the Jupyter process itself -
+  When `NB_UMASK` is set, it only applies to the Jupyter process itself -
   you cannot use it to set a `umask` for additional files created during `run-hooks.sh`.
   For example, via `pip` or `conda`.
   If you need to set a `umask` for these, you **must** set the `umask` value for each command.
@@ -122,7 +122,7 @@ You do so by passing arguments to the `docker run` command.
 - `-e RESTARTABLE=yes` - Runs Jupyter in a loop so that quitting Jupyter does not cause the container to exit.
   This may be useful when installing extensions that require restarting Jupyter.
 - `-v /some/host/folder/for/work:/home/jovyan/work` - Mounts a host machine directory as a folder in the container.
-  This configuration is useful for preserving notebooks and other work even after the container is destroyed.
+  This configuration is useful for preserving notebooks and other work even after the container has been destroyed.
   **You must grant the within-container notebook user or group (`NB_UID` or `NB_GID`) write access to the host directory (e.g., `sudo chown 1000 /some/host/folder/for/work`).**
 - `-e JUPYTER_ENV_VARS_TO_UNSET=ADMIN_SECRET_1,ADMIN_SECRET_2` - Unsets specified environment variables in the default startup script.
   The variables are unset after the hooks have been executed but before the command provided to the startup script runs.
@@ -136,11 +136,11 @@ You do so by passing arguments to the `docker run` command.
 You can further customize the container environment by adding shell scripts (`*.sh`) to be sourced
 or executables (`chmod +x`) to be run to the paths below:
 
-- `/usr/local/bin/start-notebook.d/` - handled **before** any of the standard options noted above are applied
+- `/usr/local/bin/start-notebook.d/` - handled **before** any of the standard options noted above is applied
 - `/usr/local/bin/before-notebook.d/` - handled **after** all the standard options noted above are applied
   and ran right before the Server launches
 
-See the `run-hooks.sh` script [here](https://github.com/jupyter/docker-stacks/blob/main/images/docker-stacks-foundation/run-hooks.sh) and how it's used in the [`start.sh`](https://github.com/jupyter/docker-stacks/blob/main/images/docker-stacks-foundation/start.sh)
+[Open the `run-hooks.sh` script](https://github.com/jupyter/docker-stacks/blob/main/images/docker-stacks-foundation/run-hooks.sh) and how it's used in the [`start.sh`](https://github.com/jupyter/docker-stacks/blob/main/images/docker-stacks-foundation/start.sh)
 script for execution details.
 
 ## SSL Certificates
@@ -213,14 +213,20 @@ docker run -it --rm \
     -p 8888:8888 \
     -e DOCKER_STACKS_JUPYTER_CMD=notebook \
     quay.io/jupyter/base-notebook
-# Executing the command: jupyter notebook ...
+
+# Executing the command: start-notebook.py
+# Executing: jupyter notebook
+# ...
 
 # Use Jupyter NBClassic frontend
 docker run -it --rm \
     -p 8888:8888 \
     -e DOCKER_STACKS_JUPYTER_CMD=nbclassic \
     quay.io/jupyter/base-notebook
-# Executing the command: jupyter nbclassic ...
+
+# Executing the command: start-notebook.py
+# Executing: jupyter nbclassic
+# ...
 ```
 
 ### `start.sh`
@@ -238,9 +244,9 @@ This script is handy when you derive a new Dockerfile from this image and instal
 
 ## Conda Environments
 
-The default Python 3.x [Conda environment](https://conda.io/projects/conda/en/latest/user-guide/concepts/environments.html) resides in `/opt/conda`.
+The default Python 3.x [Conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/environments.html) resides in `/opt/conda`.
 The `/opt/conda/bin` directory is part of the default `jovyan` user's `${PATH}`.
-That directory is also searched for binaries when run using `sudo` (`sudo my_binary` will search for `my_binary` in `/opt/conda/bin/`
+That directory is also searched for binaries when run using `sudo` (`sudo my_binary` will search for `my_binary` in `/opt/conda/bin/`).
 
 The `jovyan` user has full read/write access to the `/opt/conda` directory.
 You can use either `mamba`, `pip`, or `conda` (`mamba` is recommended) to install new packages without any additional permissions.

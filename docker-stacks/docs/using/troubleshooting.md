@@ -54,7 +54,6 @@ The following sections cover a few of these scenarios and how to fix them.
    ```
 
    where:
-
    - `CHOWN_EXTRA=<some-dir>,<some-other-dir>`: will change the ownership and group of the specified container directory (non-recursive by default).
      You need to provide full paths starting with `/`.
    - `CHOWN_EXTRA_OPTS="-R"`: will recursively change the ownership and group of the directory specified in `CHOWN_EXTRA`.
@@ -77,7 +76,7 @@ The following sections cover a few of these scenarios and how to fix them.
       - If you are mounting your volume inside the `/home/` directory, you can use the `-e CHOWN_HOME=yes` and `CHOWN_HOME_OPTS="-R"` flags
       instead of the `-e CHOWN_EXTRA` and `-e CHOWN_EXTRA_OPTS` in the example above.
       - This solution should work in most cases where you have created a docker volume
-      (i.e. using the [`docker volume create --name <my-volume>`command](https://docs.docker.com/storage/volumes/#create-and-manage-volumes)) and mounted it using the `-v` flag in `docker run`.
+      (i.e. using the [`docker volume create --name <my-volume>` command](https://docs.docker.com/engine/storage/volumes/#create-and-manage-volumes)) and mounted it using the `-v` flag in `docker run`.
    ```
 
 2. **Matching the container's UID/GID with the host's**
@@ -107,8 +106,7 @@ The following sections cover a few of these scenarios and how to fix them.
    ```
 
    where:
-
-   - `NB_IUD` and `NB_GID` should match the local user's UID and GID.
+   - `NB_UID` and `NB_GID` should match the local user's UID and GID.
    - You **must** use `--user root` to ensure that the `UID` and `GID` are updated at runtime.
 
 ````{admonition} Additional notes
@@ -163,7 +161,6 @@ If you have also **created a new user**, you might be experiencing any of the fo
    ```
 
    where:
-
    - `-e NB_USER=callisto`: will create a new user `callisto` and automatically add it to the `users` group (does not delete jovyan)
    - `-e NB_UID=1234` and `-e NB_GID=1234`: will set the `UID` and `GID` of the new user (`callisto`) to `1234`
    - `-e CHOWN_HOME_OPTS="-R"` and `-e CHOWN_HOME=yes`: ensure that the new user is the owner of the `/home` directory and subdirectories
@@ -199,8 +196,7 @@ If you have also **created a new user**, you might be experiencing any of the fo
    ```
 
    where:
-
-   - `"$(id -u)" and "$(id -g)"` will dynamically assign the `UID` and `GID` of the user executing the `docker run` command to the new user (`callisto`)
+   - `"$(id -u)"` and `"$(id -g)"` will dynamically assign the `UID` and `GID` of the user executing the `docker run` command to the new user (`callisto`)
 
 ## Additional tips and troubleshooting commands for permission-related errors
 
@@ -229,7 +225,7 @@ If you have also **created a new user**, you might be experiencing any of the fo
   to modify the files in the default `/home` and `/opt/conda` directories.
   Further avoiding issues when trying to `conda install` additional packages.
 
-- Use `docker inspect <container_id>` and look for the [`Mounts` section](https://docs.docker.com/storage/volumes/#start-a-container-with-a-volume)
+- Use `docker inspect <container_id>` and look for the [`Mounts` section](https://docs.docker.com/engine/storage/volumes/#start-a-container-with-a-volume)
   to verify that the volume was created and mounted accordingly:
 
   ```json
@@ -273,7 +269,7 @@ conda config --show default_channels
 You can install packages from other conda channels (e.g. `bioconda`) by disabling the `channel_priority` setting:
 
 ```bash
-# install by disabling channel priority at еру command level
+# install by disabling channel priority at the command level
 conda install --no-channel-priority -c bioconda bioconductor-geoquery
 ```
 
