@@ -13,28 +13,30 @@ Table of Contents
    using/common
    using/specifics
    using/recipes
+   using/custom-images
    using/troubleshooting
    using/faq
+   using/changelog
 
 .. toctree::
    :maxdepth: 2
    :caption: Contributor Guide
 
    contributing/issues
-   contributing/packages
-   contributing/recipes
-   contributing/lint
-   contributing/tests
    contributing/features
+   contributing/tests
+   contributing/lint
+   contributing/recipes
    contributing/stacks
+   contributing/packages
 
 .. toctree::
    :maxdepth: 2
    :caption: Maintainer Guide
 
    maintaining/new-images-and-packages-policy
+   maintaining/tagging
    maintaining/tasks
-   maintaining/aarch64-runner
 
 .. toctree::
    :maxdepth: 2

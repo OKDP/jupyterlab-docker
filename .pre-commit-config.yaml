@@ -14,28 +14,28 @@
 repos:
   # Autoupdate: Python code
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.0
+    rev: 37bfa06d791fd38fb4e54910b36a2ff57641b074 # frozen: v3.20.0
     hooks:
       - id: pyupgrade
-        args: [--py39-plus]
+        args: [--py312-plus]
 
   # Automatically sort python imports
   - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
+    rev: c8ab4a5b21bac924d106e3103dd7c979fdd0f9bc # frozen: 6.0.1
     hooks:
       - id: isort
         args: [--profile, black]
 
   # Autoformat: Python code
   - repo: https://github.com/psf/black
-    rev: 24.1.1
+    rev: 8a737e727ac5ab2f1d4cf5876720ed276dc8dc4b # frozen: 25.1.0
     hooks:
       - id: black
-        args: [--target-version=py39]
+        args: [--target-version=py312]
 
   # Check python code static typing
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
+    rev: 412de98d50e846f31ea6f4b0ad036f2c24a7a024 # frozen: v1.17.1
     hooks:
       - id: mypy
         args: [--config, ./mypy.ini]
@@ -45,39 +45,43 @@ repos:
             "numpy",
             "pytest",
             "requests",
+            "tenacity",
             "urllib3",
             "types-beautifulsoup4",
+            "types-python-dateutil",
             "types-requests",
             "types-tabulate",
             "types-urllib3",
           ]
-        # Unfortunately, `pre-commit` only runs on changed files
+        # Unfortunately, `pre-commit` only runs on modified files
         # This doesn't work well with `mypy --follow-imports error`
         # See: https://github.com/pre-commit/mirrors-mypy/issues/34#issuecomment-1062160321
         #
         # To work around this we run `mypy` only in manual mode
-        # So it won't run as part of `git commit` command
-        # But it will still be run as part of `pre-commit` workflow and give expected results
+        # So it won't run as part of `git commit` command,
+        # but it will still be run as part of `pre-commit` workflow and give expected results
         stages: [manual]
 
   # Autoformat: YAML, JSON, Markdown, etc.
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v4.0.0-alpha.8
+  - repo: https://github.com/rbubley/mirrors-prettier
+    rev: 5ba47274f9b181bce26a5150a725577f3c336011 # frozen: v3.6.2
     hooks:
       - id: prettier
 
   # `pre-commit sample-config` default hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: cef0300fd0fc4d2a87a85fa2093c6b283ea36f4b # frozen: v5.0.0
     hooks:
       - id: check-added-large-files
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
       - id: end-of-file-fixer
       - id: requirements-txt-fixer
       - id: trailing-whitespace
 
   # Lint: Dockerfile
   - repo: https://github.com/hadolint/hadolint
-    rev: v2.12.1-beta
+    rev: c3dc18df7a501f02a560a2cc7ba3c69a85ca01d3 # frozen: v2.13.1-beta
     hooks:
       - id: hadolint-docker
         entry: hadolint/hadolint:v2.12.1-beta hadolint
@@ -85,7 +89,7 @@ repos:
   # Lint: Dockerfile
   # We're linting .dockerfile files as well
   - repo: https://github.com/hadolint/hadolint
-    rev: v2.12.1-beta
+    rev: c3dc18df7a501f02a560a2cc7ba3c69a85ca01d3 # frozen: v2.13.1-beta
     hooks:
       - id: hadolint-docker
         name: Lint *.dockerfile Dockerfiles
@@ -95,67 +99,66 @@ repos:
 
   # Lint: YAML
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.33.0
+    rev: 79a6b2b1392eaf49cdd32ac4f14be1a809bbd8f7 # frozen: v1.37.1
     hooks:
       - id: yamllint
         args: ["-d {extends: relaxed, rules: {line-length: disable}}", "-s"]
-        files: \.(yaml|yml)$
 
   # Lint: Bash scripts
   - repo: https://github.com/openstack/bashate
-    rev: 2.1.1
+    rev: 5798d24d571676fc407e81df574c1ef57b520f23 # frozen: 2.1.1
     hooks:
       - id: bashate
         args: ["--ignore=E006"]
 
   # Lint: Shell scripts
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.9.0.6
+    rev: a23f6b85d0fdd5bb9d564e2579e678033debbdff # frozen: v0.10.0.1
     hooks:
       - id: shellcheck
         args: ["-x"]
 
   # Lint: Python
   - repo: https://github.com/PyCQA/flake8
-    rev: 7.0.0
+    rev: d93590f5be797aabb60e3b09f2f52dddb02f349f # frozen: 7.3.0
     hooks:
       - id: flake8
 
   # Lint: Markdown
-  - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.39.0
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: d7a4f7cf4914d3bffb9b83bdbc45fd2a00c91ff9 # frozen: v0.18.1
     hooks:
-      - id: markdownlint
-        args: ["--fix"]
+      - id: markdownlint-cli2
+        args: [--fix]
 
   # Strip output from Jupyter notebooks
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.6.1
+    rev: 7324e7aabccc1d1a9984dbe4dedbde8bd022a504 # frozen: 0.8.1
     hooks:
       - id: nbstripout
 
   # nbQA provides tools from the Python ecosystem like
   # pyupgrade, isort, black, and flake8, adjusted for notebooks.
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.7.1
+    rev: f96ec7f3b26a32619435686eb5813235f7e3327e # frozen: 1.9.1
     hooks:
       - id: nbqa-pyupgrade
-        args: [--py39-plus]
+        args: [--py312-plus]
       - id: nbqa-isort
       - id: nbqa-black
-        args: [--target-version=py39]
+        args: [--target-version=py312]
       - id: nbqa-flake8
 
   # Run black on python code blocks in documentation files.
   - repo: https://github.com/adamchainz/blacken-docs
-    rev: 1.16.0
+    rev: 78a9dcbecf4f755f65d1f3dec556bc249d723600 # frozen: 1.19.1
     hooks:
       - id: blacken-docs
         # --skip-errors is added to allow us to have python syntax highlighting even if
         # the python code blocks include jupyter-specific additions such as % or !
         # See https://github.com/adamchainz/blacken-docs/issues/127 for an upstream
         # feature request about this.
-        args: [--target-version=py39, --skip-errors]
+        args: [--target-version=py312, --skip-errors]
 
 # pre-commit.ci config reference: https://pre-commit.ci/#configuration
 ci:

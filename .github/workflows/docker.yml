@@ -1,4 +1,4 @@
-name: Build, test, and push Docker Images
+name: Docker Stacks
 
 # [FAST_BUILD] in the PR title makes this workflow only build
 # the `jupyter/docker-stacks-foundation` and `jupyter/base-notebook` images
@@ -13,14 +13,14 @@ on:
     paths:
       - ".github/workflows/docker.yml"
       # We use local reusable workflows to make architecture clean and simple
-      # https://docs.github.com/en/actions/using-workflows/reusing-workflows
+      # https://docs.github.com/en/actions/sharing-automations/reusing-workflows
       - ".github/workflows/docker-build-test-upload.yml"
-      - ".github/workflows/docker-merge-tags.yml"
       - ".github/workflows/docker-tag-push.yml"
       - ".github/workflows/docker-wiki-update.yml"
 
       # We use local composite actions to combine multiple workflow steps within one action
-      # https://docs.github.com/en/actions/creating-actions/about-custom-actions#composite-actions
+      # https://docs.github.com/en/actions/sharing-automations/creating-actions/about-custom-actions#composite-actions
+      - ".github/actions/apply-single-tags/action.yml"
       - ".github/actions/create-dev-env/action.yml"
       - ".github/actions/load-image/action.yml"
 
@@ -30,6 +30,7 @@ on:
       - "!tagging/README.md"
       - "tests/**"
       - "!tests/README.md"
+      - "wiki/**"
       - "requirements-dev.txt"
   push:
     branches:
@@ -37,10 +38,10 @@ on:
     paths:
       - ".github/workflows/docker.yml"
       - ".github/workflows/docker-build-test-upload.yml"
-      - ".github/workflows/docker-merge-tags.yml"
       - ".github/workflows/docker-tag-push.yml"
       - ".github/workflows/docker-wiki-update.yml"
 
+      - ".github/actions/apply-single-tags/action.yml"
       - ".github/actions/create-dev-env/action.yml"
       - ".github/actions/load-image/action.yml"
 
@@ -50,10 +51,11 @@ on:
       - "!tagging/README.md"
       - "tests/**"
       - "!tests/README.md"
+      - "wiki/**"
       - "requirements-dev.txt"
   workflow_dispatch:
 
-# https://docs.github.com/en/actions/using-jobs/using-concurrency
+# https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/control-the-concurrency-of-workflows-and-jobs
 concurrency:
   # Only cancel in-progress jobs or runs for the current workflow - matches against branch & tags
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -66,8 +68,8 @@ jobs:
       parent-image: ""
       image: docker-stacks-foundation
       platform: aarch64
-      runs-on: ARM64_FAST
-    if: github.repository_owner == 'jupyter'
+      runs-on: ubuntu-24.04-arm
+      timeout-minutes: 10
 
   x86_64-foundation:
     uses: ./.github/workflows/docker-build-test-upload.yml
@@ -75,7 +77,8 @@ jobs:
       parent-image: ""
       image: docker-stacks-foundation
       platform: x86_64
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-24.04
+      timeout-minutes: 10
 
   aarch64-base:
     uses: ./.github/workflows/docker-build-test-upload.yml
@@ -83,9 +86,9 @@ jobs:
       parent-image: docker-stacks-foundation
       image: base-notebook
       platform: aarch64
-      runs-on: ARM64_FAST
-    needs: [aarch64-foundation]
-    if: github.repository_owner == 'jupyter'
+      runs-on: ubuntu-24.04-arm
+      timeout-minutes: 15
+    needs: aarch64-foundation
 
   x86_64-base:
     uses: ./.github/workflows/docker-build-test-upload.yml
@@ -93,8 +96,9 @@ jobs:
       parent-image: docker-stacks-foundation
       image: base-notebook
       platform: x86_64
-      runs-on: ubuntu-latest
-    needs: [x86_64-foundation]
+      runs-on: ubuntu-24.04
+      timeout-minutes: 15
+    needs: x86_64-foundation
 
   aarch64-minimal:
     uses: ./.github/workflows/docker-build-test-upload.yml
@@ -102,9 +106,10 @@ jobs:
       parent-image: base-notebook
       image: minimal-notebook
       platform: aarch64
-      runs-on: ARM64_FAST
-    needs: [aarch64-base]
-    if: github.repository_owner == 'jupyter' && !contains(github.event.pull_request.title, '[FAST_BUILD]')
+      runs-on: ubuntu-24.04-arm
+      timeout-minutes: 15
+    needs: aarch64-base
+    if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
   x86_64-minimal:
     uses: ./.github/workflows/docker-build-test-upload.yml
@@ -112,8 +117,9 @@ jobs:
       parent-image: base-notebook
       image: minimal-notebook
       platform: x86_64
-      runs-on: ubuntu-latest
-    needs: [x86_64-base]
+      runs-on: ubuntu-24.04
+      timeout-minutes: 15
+    needs: x86_64-base
     if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
   aarch64-scipy:
@@ -122,9 +128,10 @@ jobs:
       parent-image: minimal-notebook
       image: scipy-notebook
       platform: aarch64
-      runs-on: ARM64_FAST
-    needs: [aarch64-minimal]
-    if: github.repository_owner == 'jupyter' && !contains(github.event.pull_request.title, '[FAST_BUILD]')
+      runs-on: ubuntu-24.04-arm
+      timeout-minutes: 15
+    needs: aarch64-minimal
+    if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
   x86_64-scipy:
     uses: ./.github/workflows/docker-build-test-upload.yml
@@ -132,8 +139,9 @@ jobs:
       parent-image: minimal-notebook
       image: scipy-notebook
       platform: x86_64
-      runs-on: ubuntu-latest
-    needs: [x86_64-minimal]
+      runs-on: ubuntu-24.04
+      timeout-minutes: 15
+    needs: x86_64-minimal
     if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
   aarch64-r:
@@ -142,9 +150,10 @@ jobs:
       parent-image: minimal-notebook
       image: r-notebook
       platform: aarch64
-      runs-on: ARM64_SLOW
-    needs: [aarch64-minimal]
-    if: github.repository_owner == 'jupyter' && !contains(github.event.pull_request.title, '[FAST_BUILD]')
+      runs-on: ubuntu-24.04-arm
+      timeout-minutes: 15
+    needs: aarch64-minimal
+    if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
   x86_64-r:
     uses: ./.github/workflows/docker-build-test-upload.yml
@@ -152,8 +161,9 @@ jobs:
       parent-image: minimal-notebook
       image: r-notebook
       platform: x86_64
-      runs-on: ubuntu-latest
-    needs: [x86_64-minimal]
+      runs-on: ubuntu-24.04
+      timeout-minutes: 15
+    needs: x86_64-minimal
     if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
   aarch64-julia:
@@ -162,9 +172,11 @@ jobs:
       parent-image: minimal-notebook
       image: julia-notebook
       platform: aarch64
-      runs-on: ARM64_SLOW
-    needs: [aarch64-minimal]
-    if: github.repository_owner == 'jupyter' && !contains(github.event.pull_request.title, '[FAST_BUILD]')
+      runs-on: ubuntu-24.04-arm
+      # This workflow sometimes takes quite long to build
+      timeout-minutes: 30
+    needs: aarch64-minimal
+    if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
   x86_64-julia:
     uses: ./.github/workflows/docker-build-test-upload.yml
@@ -172,8 +184,9 @@ jobs:
       parent-image: minimal-notebook
       image: julia-notebook
       platform: x86_64
-      runs-on: ubuntu-latest
-    needs: [x86_64-minimal]
+      runs-on: ubuntu-24.04
+      timeout-minutes: 20
+    needs: x86_64-minimal
     if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
   aarch64-tensorflow:
@@ -182,9 +195,10 @@ jobs:
       parent-image: scipy-notebook
       image: tensorflow-notebook
       platform: aarch64
-      runs-on: ARM64_SLOW
-    needs: [aarch64-scipy]
-    if: github.repository_owner == 'jupyter' && !contains(github.event.pull_request.title, '[FAST_BUILD]')
+      runs-on: ubuntu-24.04-arm
+      timeout-minutes: 15
+    needs: aarch64-scipy
+    if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
   x86_64-tensorflow:
     uses: ./.github/workflows/docker-build-test-upload.yml
@@ -192,8 +206,21 @@ jobs:
       parent-image: scipy-notebook
       image: tensorflow-notebook
       platform: x86_64
-      runs-on: ubuntu-latest
-    needs: [x86_64-scipy]
+      runs-on: ubuntu-24.04
+      timeout-minutes: 15
+    needs: x86_64-scipy
+    if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
+
+  x86_64-tensorflow-cuda:
+    uses: ./.github/workflows/docker-build-test-upload.yml
+    with:
+      parent-image: scipy-notebook
+      image: tensorflow-notebook
+      variant: cuda
+      platform: x86_64
+      runs-on: ubuntu-24.04
+      timeout-minutes: 20
+    needs: x86_64-scipy
     if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
   aarch64-pytorch:
@@ -202,9 +229,10 @@ jobs:
       parent-image: scipy-notebook
       image: pytorch-notebook
       platform: aarch64
-      runs-on: ARM64_SLOW
-    needs: [aarch64-scipy]
-    if: github.repository_owner == 'jupyter' && !contains(github.event.pull_request.title, '[FAST_BUILD]')
+      runs-on: ubuntu-24.04-arm
+      timeout-minutes: 20
+    needs: aarch64-scipy
+    if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
   x86_64-pytorch:
     uses: ./.github/workflows/docker-build-test-upload.yml
@@ -212,8 +240,33 @@ jobs:
       parent-image: scipy-notebook
       image: pytorch-notebook
       platform: x86_64
-      runs-on: ubuntu-latest
-    needs: [x86_64-scipy]
+      runs-on: ubuntu-24.04
+      timeout-minutes: 20
+    needs: x86_64-scipy
+    if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
+
+  x86_64-pytorch-cuda11:
+    uses: ./.github/workflows/docker-build-test-upload.yml
+    with:
+      parent-image: scipy-notebook
+      image: pytorch-notebook
+      variant: cuda11
+      platform: x86_64
+      runs-on: ubuntu-24.04
+      timeout-minutes: 20
+    needs: x86_64-scipy
+    if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
+
+  x86_64-pytorch-cuda12:
+    uses: ./.github/workflows/docker-build-test-upload.yml
+    with:
+      parent-image: scipy-notebook
+      image: pytorch-notebook
+      variant: cuda12
+      platform: x86_64
+      runs-on: ubuntu-24.04
+      timeout-minutes: 20
+    needs: x86_64-scipy
     if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
   aarch64-datascience:
@@ -222,9 +275,11 @@ jobs:
       parent-image: scipy-notebook
       image: datascience-notebook
       platform: aarch64
-      runs-on: ARM64_SLOW
-    needs: [aarch64-scipy]
-    if: github.repository_owner == 'jupyter' && !contains(github.event.pull_request.title, '[FAST_BUILD]')
+      runs-on: ubuntu-24.04-arm
+      # This workflow sometimes takes quite long to build
+      timeout-minutes: 30
+    needs: aarch64-scipy
+    if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
   x86_64-datascience:
     uses: ./.github/workflows/docker-build-test-upload.yml
@@ -232,8 +287,9 @@ jobs:
       parent-image: scipy-notebook
       image: datascience-notebook
       platform: x86_64
-      runs-on: ubuntu-latest
-    needs: [x86_64-scipy]
+      runs-on: ubuntu-24.04
+      timeout-minutes: 25
+    needs: x86_64-scipy
     if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
   aarch64-pyspark:
@@ -242,9 +298,10 @@ jobs:
       parent-image: scipy-notebook
       image: pyspark-notebook
       platform: aarch64
-      runs-on: ARM64_FAST
-    needs: [aarch64-scipy]
-    if: github.repository_owner == 'jupyter' && !contains(github.event.pull_request.title, '[FAST_BUILD]')
+      runs-on: ubuntu-24.04-arm
+      timeout-minutes: 20
+    needs: aarch64-scipy
+    if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
   x86_64-pyspark:
     uses: ./.github/workflows/docker-build-test-upload.yml
@@ -252,8 +309,9 @@ jobs:
       parent-image: scipy-notebook
       image: pyspark-notebook
       platform: x86_64
-      runs-on: ubuntu-latest
-    needs: [x86_64-scipy]
+      runs-on: ubuntu-24.04
+      timeout-minutes: 15
+    needs: x86_64-scipy
     if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
   aarch64-all-spark:
@@ -262,9 +320,10 @@ jobs:
       parent-image: pyspark-notebook
       image: all-spark-notebook
       platform: aarch64
-      runs-on: ARM64_FAST
-    needs: [aarch64-pyspark]
-    if: github.repository_owner == 'jupyter' && !contains(github.event.pull_request.title, '[FAST_BUILD]')
+      runs-on: ubuntu-24.04-arm
+      timeout-minutes: 20
+    needs: aarch64-pyspark
+    if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
   x86_64-all-spark:
     uses: ./.github/workflows/docker-build-test-upload.yml
@@ -272,15 +331,26 @@ jobs:
       parent-image: pyspark-notebook
       image: all-spark-notebook
       platform: x86_64
-      runs-on: ubuntu-latest
-    needs: [x86_64-pyspark]
+      runs-on: ubuntu-24.04
+      timeout-minutes: 15
+    needs: x86_64-pyspark
     if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
-  aarch64-images-tag-push:
+  contributed-recipes:
+    uses: ./.github/workflows/contributed-recipes.yml
+    with:
+      called-using-workflow-call: true
+    # Contributed recipes only use these images
+    # If recipes using other images will be added, they should be added here as well
+    #
+    # contributed-recipes will give an error if the image is not yet built and uploaded
+    needs: [aarch64-base, x86_64-base, aarch64-minimal, x86_64-minimal]
+
+  tag-push:
     uses: ./.github/workflows/docker-tag-push.yml
     with:
-      platform: aarch64
       image: ${{ matrix.image }}
+      variant: ${{ matrix.variant }}
     secrets:
       REGISTRY_USERNAME: ${{ secrets.QUAY_USERNAME }}
       REGISTRY_TOKEN: ${{ secrets.QUAY_ROBOT_TOKEN }}
@@ -300,8 +370,18 @@ jobs:
             pyspark-notebook,
             all-spark-notebook,
           ]
+        variant: [default]
+        include:
+          - image: tensorflow-notebook
+            variant: cuda
+          - image: pytorch-notebook
+            variant: cuda11
+          - image: pytorch-notebook
+            variant: cuda12
     needs:
       [
+        contributed-recipes,
+
         aarch64-foundation,
         aarch64-base,
         aarch64-minimal,
@@ -313,49 +393,7 @@ jobs:
         aarch64-datascience,
         aarch64-pyspark,
         aarch64-all-spark,
-      ]
-    if: github.repository_owner == 'jupyter' && !contains(github.event.pull_request.title, '[FAST_BUILD]')
 
-  aarch64-images-tag-push-fast:
-    uses: ./.github/workflows/docker-tag-push.yml
-    with:
-      platform: aarch64
-      image: ${{ matrix.image }}
-    secrets:
-      REGISTRY_USERNAME: ${{ secrets.QUAY_USERNAME }}
-      REGISTRY_TOKEN: ${{ secrets.QUAY_ROBOT_TOKEN }}
-    strategy:
-      matrix:
-        image: [docker-stacks-foundation, base-notebook]
-    needs: [aarch64-foundation, aarch64-base]
-    if: github.repository_owner == 'jupyter' && contains(github.event.pull_request.title, '[FAST_BUILD]')
-
-  x86_64-images-tag-push:
-    uses: ./.github/workflows/docker-tag-push.yml
-    with:
-      platform: x86_64
-      image: ${{ matrix.image }}
-    secrets:
-      REGISTRY_USERNAME: ${{ secrets.QUAY_USERNAME }}
-      REGISTRY_TOKEN: ${{ secrets.QUAY_ROBOT_TOKEN }}
-    strategy:
-      matrix:
-        image:
-          [
-            docker-stacks-foundation,
-            base-notebook,
-            minimal-notebook,
-            scipy-notebook,
-            r-notebook,
-            julia-notebook,
-            tensorflow-notebook,
-            pytorch-notebook,
-            datascience-notebook,
-            pyspark-notebook,
-            all-spark-notebook,
-          ]
-    needs:
-      [
         x86_64-foundation,
         x86_64-base,
         x86_64-minimal,
@@ -363,81 +401,39 @@ jobs:
         x86_64-r,
         x86_64-julia,
         x86_64-tensorflow,
+        x86_64-tensorflow-cuda,
         x86_64-pytorch,
+        x86_64-pytorch-cuda11,
+        x86_64-pytorch-cuda12,
         x86_64-datascience,
         x86_64-pyspark,
         x86_64-all-spark,
       ]
     if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
 
-  x86_64-images-tag-push-fast:
+  tag-push-fast:
     uses: ./.github/workflows/docker-tag-push.yml
     with:
-      platform: x86_64
       image: ${{ matrix.image }}
+      variant: ${{ matrix.variant }}
     secrets:
       REGISTRY_USERNAME: ${{ secrets.QUAY_USERNAME }}
       REGISTRY_TOKEN: ${{ secrets.QUAY_ROBOT_TOKEN }}
     strategy:
       matrix:
         image: [docker-stacks-foundation, base-notebook]
-    needs: [x86_64-foundation, x86_64-base]
+        variant: [default]
+    needs: [aarch64-foundation, aarch64-base, x86_64-foundation, x86_64-base]
     if: contains(github.event.pull_request.title, '[FAST_BUILD]')
-
-  merge-tags:
-    uses: ./.github/workflows/docker-merge-tags.yml
-    with:
-      image: ${{ matrix.image }}
-    secrets:
-      REGISTRY_USERNAME: ${{ secrets.QUAY_USERNAME }}
-      REGISTRY_TOKEN: ${{ secrets.QUAY_ROBOT_TOKEN }}
-    strategy:
-      matrix:
-        image:
-          [
-            docker-stacks-foundation,
-            base-notebook,
-            minimal-notebook,
-            scipy-notebook,
-            r-notebook,
-            julia-notebook,
-            tensorflow-notebook,
-            pytorch-notebook,
-            datascience-notebook,
-            pyspark-notebook,
-            all-spark-notebook,
-          ]
-    needs: [aarch64-images-tag-push, x86_64-images-tag-push]
-    if: github.repository_owner == 'jupyter' && !contains(github.event.pull_request.title, '[FAST_BUILD]')
-
-  merge-tags-fast:
-    uses: ./.github/workflows/docker-merge-tags.yml
-    with:
-      image: ${{ matrix.image }}
-    secrets:
-      REGISTRY_USERNAME: ${{ secrets.QUAY_USERNAME }}
-      REGISTRY_TOKEN: ${{ secrets.QUAY_ROBOT_TOKEN }}
-    strategy:
-      matrix:
-        image: [docker-stacks-foundation, base-notebook]
-    needs: [aarch64-images-tag-push-fast, x86_64-images-tag-push-fast]
-    if: github.repository_owner == 'jupyter' && contains(github.event.pull_request.title, '[FAST_BUILD]')
 
   wiki-update:
     uses: ./.github/workflows/docker-wiki-update.yml
-    needs: [aarch64-images-tag-push, x86_64-images-tag-push]
-    if: github.repository_owner == 'jupyter' && !contains(github.event.pull_request.title, '[FAST_BUILD]')
+    needs: tag-push
+    if: ${{ !contains(github.event.pull_request.title, '[FAST_BUILD]') }}
     permissions:
       contents: write
 
   wiki-update-fast:
     uses: ./.github/workflows/docker-wiki-update.yml
-    needs: [aarch64-images-tag-push-fast, x86_64-images-tag-push-fast]
-    if: github.repository_owner == 'jupyter' && contains(github.event.pull_request.title, '[FAST_BUILD]')
-    permissions:
-      contents: write
-
-  contributed-recipes:
-    uses: ./.github/workflows/contributed-recipes.yml
-    needs: [merge-tags]
-    if: github.repository_owner == 'jupyter' && (github.ref == 'refs/heads/main' || github.event_name == 'schedule')
+    needs: tag-push-fast
+    if: contains(github.event.pull_request.title, '[FAST_BUILD]')

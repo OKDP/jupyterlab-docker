@@ -7,36 +7,53 @@ on:
   pull_request:
     paths:
       - ".github/workflows/sphinx.yml"
+      - "Makefile"
 
       - "docs/**"
+
+      # These files are also rendered as docs pages
       - "README.md"
+      - "CHANGELOG.md"
+
+      # These files are used to generate some code snippets in the docs
+      - "tagging/manifests/apt_packages.py"
+      - "tagging/manifests/manifest_interface.py"
+      - "tagging/taggers/sha.py"
+      - "tagging/taggers/tagger_interface.py"
   push:
     branches:
       - main
     paths:
       - ".github/workflows/sphinx.yml"
+      - "Makefile"
 
       - "docs/**"
+
       - "README.md"
+      - "CHANGELOG.md"
+
+      - "tagging/manifests/apt_packages.py"
+      - "tagging/manifests/manifest_interface.py"
+      - "tagging/taggers/sha.py"
+      - "tagging/taggers/tagger_interface.py"
   workflow_dispatch:
 
 jobs:
   build-docs:
-    permissions:
-      contents: write
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     if: github.repository_owner == 'jupyter' || github.repository_owner == 'mathbunnyru' || github.event_name != 'schedule'
-    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repo ⚡️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Set Up Python 🐍
         uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: 3.12
 
       - name: Install Doc Dependencies 📦
         run: |

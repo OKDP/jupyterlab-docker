@@ -54,7 +54,7 @@ It contains:
 
 - Everything in `jupyter/docker-stacks-foundation`
 - Minimally functional Server (e.g., no LaTeX support for saving notebooks as PDFs)
-- `notebook`, `jupyterhub`, and `jupyterlab` packages
+- `notebook`, `jupyterhub-singleuser`, and `jupyterlab` packages
 - A `start-notebook.py` script as the default command
 - A `start-singleuser.py` script useful for launching containers in JupyterHub
 - Options for a self-signed HTTPS certificate
@@ -184,7 +184,8 @@ It contains:
 `jupyter/tensorflow-notebook` includes popular Python deep learning libraries.
 
 - Everything in `jupyter/scipy-notebook` and its ancestor images
-- [tensorflow](https://www.tensorflow.org/) machine learning library
+- [TensorFlow](https://www.tensorflow.org/) machine learning library
+- [Jupyter Server Proxy](https://jupyter-server-proxy.readthedocs.io/en/latest/) to support [TensorBoard](https://www.tensorflow.org/tensorboard)
 
 ### jupyter/pytorch-notebook
 
@@ -234,9 +235,19 @@ It contains:
 - Everything in `jupyter/pyspark-notebook` and its ancestor images
 - [IRKernel](https://irkernel.github.io/) to support R code in Jupyter notebooks
 - [rcurl](https://cran.r-project.org/web/packages/RCurl/index.html),
-  [sparklyr](https://spark.rstudio.com),
+  [sparklyr](https://spark.posit.co),
   [ggplot2](https://ggplot2.tidyverse.org)
   packages
+
+### CUDA enabled variants
+
+We provide CUDA accelerated versions of the `pytorch-notebook` and `tensorflow-notebook` images.
+Prepend a CUDA prefix (versioned prefix like `cuda12-` for `pytorch-notebook` or just `cuda-` for `tensorflow-notebook`) to the image tag
+to allow PyTorch or TensorFlow operations to use compatible NVIDIA GPUs for accelerated computation.
+We only build `pytorch-notebook` for the last two major versions of CUDA.
+The `tensorflow-notebook` image only supports the latest CUDA version listed in the [officially tested build configurations](https://www.tensorflow.org/install/source#gpu).
+
+For example, you could use the image `quay.io/jupyter/pytorch-notebook:cuda12-python-3.11.8` or `quay.io/jupyter/tensorflow-notebook:cuda-latest`.
 
 ### Image Relationships
 
@@ -244,7 +255,7 @@ The following diagram depicts the build dependency tree of the core images. (i.e
 Any given image inherits the complete content of all ancestor images pointing to it.
 
 [![Image inheritance
-diagram](../images/inherit.svg)](http://interactive.blockdiag.com/?compression=deflate&src=eJyFz8FOwzAMgOH7nsLqCQ55ADTBE3CDIxJyU5eZZnaUOJoK2rsv4YCUSlOvv784yRjULxPjF_weACaasQT7nFUs8w_BMzwda9fEJIbGKjVFTZaQ7Xioo6GMRax8yMPr-xtc2E51zmKQKBBmehzAvcBUb6HksqFfspu1yPS3rS2_N2vnxrrBiRqNqkvDXWjizMJnDB3atuay57h2qi_NDEaSNc1BL_99uEPjapr8ac_Vr2CtJJ52n5h2xXcJjDufiGuOmJZObVtzGILbyusNkda3zw)
+diagram](../images/inherit.svg)](http://interactive.blockdiag.com/?compression=deflate&src=eJyFj0FqwzAQRfc5hfAqpYiS7kpoT9BdugyEsTxuplZmjDRqcEvvXinQggzGK8Gb97_4rRc3dATv5ntjTIc9JK-nXlgjfaF5Nk_7zCUQsoKScEajBA1Aut_kU5PaxJqOvH19O5gr6TnfidUE9AgR7xpjX0yXf8Fgo4Ibou0lcXdrK-VLt5Jrc4NlUWxFhiJXoBgXYrqAr6Q5K150NE6VVZPiNIocJfRerv_8yPcudWA-IRCwNgvJcVIJ7jyP7XYPt-fxLx8XCvJkyBTZ4eqUsGp8JE-wMnac4ghhqKw5Kx54b-fmzy_M3cYh)
 
 ### Builds
 
@@ -289,6 +300,7 @@ See the [contributing guide](../contributing/stacks.md) for information about ho
 | [transformers] | [![bb]][transformers_b] | [**Transformers**][transformers_lib] and NLP libraries such as `Tensorflow`, `Keras`, `Jax` and `PyTorch` |
 | [scraper]      | [![bb]][scraper_b]      | **Scraper** tools (`selenium`, `chromedriver`, `beatifulsoup4`, `requests`) on `minimal-notebook` image   |
 | [almond]       | [![bb]][almond_b]       | Scala kernel for Jupyter using **Almond** on top of the `base-notebook` image                             |
+| [lisp-stat]    | [![bb]][lisp-stat_b]    | Common Lisp statistical computing environment on top of the `minimal-notebook` image                      |
 
 [bb]: https://static.mybinder.org/badge_logo.svg
 [csharp]: https://github.com/tlinnet/csharp-notebook
@@ -316,16 +328,21 @@ See the [contributing guide](../contributing/stacks.md) for information about ho
 [scraper_b]: https://mybinder.org/v2/gh/rgriffogoes/scraper-notebook/main
 [almond]: https://almond.sh
 [almond_b]: https://mybinder.org/v2/gh/almond-sh/examples/master?urlpath=lab%2Ftree%2Fnotebooks%2Findex.ipynb
+[lisp-stat]: https://lisp-stat.dev
+[lisp-stat_b]: https://mybinder.org/v2/gh/Lisp-Stat/IPS9/HEAD?urlpath=%2Fdoc%2Ftree%2Findex.ipynb
 
-### GPU-accelerated notebooks
+### Other GPU-accelerated notebooks
 
-| Flavor             | Description                                                                                                                                                                                                                                                                                                                                                  |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [GPU-Jupyter][gpu] | Power of your NVIDIA GPU and GPU calculations using Tensorflow and Pytorch in collaborative notebooks. This is done by generating a Dockerfile that consists of the **nvidia/cuda** base image, the well-maintained **docker-stacks** that is integrated as a submodule, and GPU-able libraries like **Tensorflow**, **Keras** and **PyTorch** on top of it. |
-| [PRP-GPU][prp_gpu] | PRP (Pacific Research Platform) maintained [registry][prp_reg] for jupyter stack based on NVIDIA CUDA-enabled image. Added the PRP image with Pytorch and some other Python packages and GUI Desktop notebook based on <https://github.com/jupyterhub/jupyter-remote-desktop-proxy>.                                                                         |
-| [b-data][b-data]   | GPU accelerated, multi-arch (`linux/amd64`, `linux/arm64/v8`) docker images for [R][r_cuda], [Python][python_cuda] and [Julia][julia_cuda]. Derived from nvidia/cuda `devel`-flavored images, including TensortRT and TensorRT plugin libraries. With [code-server][code-server] next to JupyterLab. Just Python – no [Conda][conda]/[Mamba][mamba].         |
+| Flavor                            | Description                                                                                                                                                                                                                                                                                                                                                  |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [GPU-Jupyter][gpu]                | Power of your NVIDIA GPU and GPU calculations using Tensorflow and Pytorch in collaborative notebooks. This is done by generating a Dockerfile that consists of the **nvidia/cuda** base image, the well-maintained **docker-stacks** that is integrated as a submodule, and GPU-able libraries like **Tensorflow**, **Keras** and **PyTorch** on top of it. |
+| [myLab TH Lübeck Images][gpu_thl] | Images based on the **jupyter/docker-stacks**, built and maintained at the [myLab TH Lübeck][gpu_mylab] using build scripts similar to iot-salzburg. Several images include GPU libraries.                                                                                                                                                                   |
+| [PRP-GPU][prp_gpu]                | PRP (Pacific Research Platform) maintained [registry][prp_reg] for jupyter stack based on NVIDIA CUDA-enabled image. Added the PRP image with Pytorch and some other Python packages and GUI Desktop notebook based on <https://github.com/jupyterhub/jupyter-remote-desktop-proxy>.                                                                         |
+| [b-data][b-data]                  | GPU accelerated, multi-arch (`linux/amd64`, `linux/arm64/v8`) docker images for [R][r_cuda], [Python][python_cuda] and [Julia][julia_cuda]. Derived from nvidia/cuda `devel`-flavored images, including TensortRT and TensorRT plugin libraries. With [code-server][code-server] next to JupyterLab. Just Python – no [Conda][conda]/[Mamba][mamba].         |
 
 [gpu]: https://github.com/iot-salzburg/gpu-jupyter
+[gpu_thl]: https://hub.docker.com/r/hanseware/jlab-images
+[gpu_mylab]: https://mylab.th-luebeck.de
 [prp_gpu]: https://gitlab.nrp-nautilus.io/prp/jupyter-stack/-/tree/prp
 [prp_reg]: https://gitlab.nrp-nautilus.io/prp/jupyter-stack/container_registry
 [b-data]: https://github.com/b-data
