@@ -9,9 +9,8 @@ Modification of the original file:
 from typing import Optional
 
 from okdp.extension.tagging.images_hierarchy import ALL_IMAGES
-from tagging.manifests import ManifestInterface
-from tagging.taggers import TaggerInterface
-
+from tagging.manifests.manifest_interface import ManifestInterface
+from tagging.taggers.tagger_interface import TaggerInterface
 
 def get_taggers_and_manifests(
     short_image_name: Optional[str],

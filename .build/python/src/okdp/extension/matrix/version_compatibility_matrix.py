@@ -6,7 +6,6 @@ from okdp.extension.matrix.constants import *
 
 from okdp.extension.matrix.utils.matrix_utils import ignore_invalid_versions, join_versions, group_versions_by, normalize_matrix, normalize_scala_version, normalize_value, remove_duplicates
 from okdp.extension.matrix.utils.matrix_utils import group_on
-
 LOGGER = logging.getLogger(__name__)
 
 class VersionCompatibilityMatrix:
@@ -14,7 +13,6 @@ class VersionCompatibilityMatrix:
    def __init__(self, path: str, git_branch: str):
       
       LOGGER.info(f"Building version compatibilty matrix - Matrix path: {path}, Current git branch: {git_branch}")
-
       with open(path, 'r') as file:
         doc = yaml.safe_load(file)
         self.compatibility_matrix = doc.get("compatibility-matrix")

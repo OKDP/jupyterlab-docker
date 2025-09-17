@@ -53,25 +53,34 @@ jobs:
       ### The publish and periodic rebuilds are based on the latest stable github release tag
       - name: Checkout latest Github Release tag (${{ inputs.git_latest_release_tag }}) ⚡️
         if: inputs.publish_to_registry == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ inputs.git_latest_release_tag }}
 
       - name: Checkout Repo ⚡️
         if: inputs.publish_to_registry == 'false'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Free up disk space 📦
+        if: env.ACT != 'true'
         uses: ./.github/actions/free-disk-space
 
       - name: Set up QEMU and Docker Buildx 📦
         uses: ./.github/actions/setup-buildx
 
-      - name: Setup dev env patchs 📦
-        uses: ./.github/actions/install-patchs-and-extension
-      
+      - name: Patch create a build environment
+        uses: ./.github/actions/patch-create-dev-env
+
       - name: Create dev environment 📦
-        uses: ./docker-stacks/.github/actions/create-dev-env
+        # We need to have a recent docker version
+        # More info: https://github.com/jupyter/docker-stacks/pull/2255
+        # Can be removed after Docker Engine is updated
+        # https://github.com/actions/runner-images/issues/11766
+        #uses: ./docker-stacks/.github/actions/create-dev-env
+        uses: ./.github/actions/create-dev-env
+
+      - name: Setup dev env patchs 📦
+        uses: ./.github/actions/install-okdp-extension
       
       - name: Expose git commit sha as env variable
         uses: rlespinasse/git-commit-data-action@v1.5.0
@@ -119,7 +128,7 @@ jobs:
           done
           if [[ "${{ inputs.parent-image }}" ]]
           then
-            BUILD_ARGS+="--build-arg BASE_CONTAINER=$REGISTRY/$OWNER/${{ inputs.parent-image }} "
+            BUILD_ARGS+="--build-arg BASE_IMAGE=$REGISTRY/$OWNER/${{ inputs.parent-image }} "
           fi
           echo "BUILD_ARGS=$BUILD_ARGS" >> $GITHUB_ENV
           # The short image name is necessary to run the tests (not pushed, local to jobs only)
@@ -164,7 +173,7 @@ jobs:
         # Skip tests when running with ACT
         if: inputs.publish_to_registry == 'false' && env.ACT_SKIP_TESTS == ''
         run: |
-            python3 -m tests.run_tests --short-image-name $SHORT_IMAGE_NAME --registry ${{ inputs.ci_registry }} --owner $OWNER
+            python3 -m tests.run_tests --image $SHORT_IMAGE_NAME --registry ${{ inputs.ci_registry }} --owner $OWNER
         shell: bash
       
       - name: Push to ci registry 📤

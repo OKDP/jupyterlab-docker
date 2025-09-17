@@ -1,4 +1,4 @@
-from tests.extension.matrix.conftest import MockedVersionCompatibilityMatrix, to_dict
+from extension.matrix.conftest import MockedVersionCompatibilityMatrix, to_dict
 from okdp.extension.matrix.utils.matrix_utils import group_versions_by
 from okdp.extension.matrix.utils.matrix_utils import group_on
 from okdp.extension.matrix.version_compatibility_matrix import VersionCompatibilityMatrix
@@ -62,7 +62,7 @@ def test_filter_by_empty_versions(
     assert actual_nb_combinations == expected_nb_combinations, f"The number of elements should be {expected_nb_combinations}, got {actual_nb_combinations}"
 
     # Then: check the expected combinations when the build_matrix is empty
-    with open("python/tests/extension/matrix/resources/expected_build_matrix_empty.json", 'r') as file:
+    with open("python/tests/okdp/extension/matrix/resources/expected_build_matrix_empty.json", 'r') as file:
          expected_build_matrix_empty = file.read()  
 
     assert to_dict(expected_build_matrix_empty) == spark_matrix

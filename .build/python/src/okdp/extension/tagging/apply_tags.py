@@ -6,12 +6,11 @@
 Modification of the original file:
 * Generate and apply the tags on the fly instead of writing them to an intermediate file
 """
-import argparse
 import logging
-
 import plumbum
+import argparse
 
-from tagging.docker_runner import DockerRunner
+from tagging.utils.docker_runner import DockerRunner
 from okdp.extension.tagging.get_taggers_and_manifests import get_taggers_and_manifests
 
 docker = plumbum.local["docker"]
@@ -39,7 +38,7 @@ class Tagging:
             LOGGER.info(f"Applying tag: {tag}")
             docker["tag", image, tag] & plumbum.FG
 
-    def generate_tags(self) -> [str]:
+    def generate_tags(self) -> list[str]:
         """
         Generate tags for the image <registry>/<owner>/<short_image_name>:latest
         """
