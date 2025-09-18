@@ -41,6 +41,20 @@ def version_compatibility_matrix_data():
             'scala_version': ['2.12', '2.13'],
             'hadoop_version': ['3'],
             'spark_download_url': ['https://archive.apache.org/dist/spark/']
+            },
+            {'python_version': ['3.12'],
+            'spark_version': ['4.0.0'], 
+            'java_version': ['17'], 
+            'scala_version': ['2.13'],
+            'hadoop_version': ['3'],
+            'spark_download_url': ['https://archive.apache.org/dist/spark/']
+            },
+            {'python_version': ['3.12'],
+            'spark_version': ['4.0.1'], 
+            'java_version': ['17'], 
+            'scala_version': ['2.13'],
+            'hadoop_version': ['3'],
+            'spark_download_url': ['https://archive.apache.org/dist/spark/']
             }
   ]
 

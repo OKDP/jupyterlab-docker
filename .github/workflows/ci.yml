@@ -146,6 +146,7 @@ jobs:
   build-datascience:
     name: build-datascience (python-${{ matrix.python.python_version }})
     strategy:
+      fail-fast: false
       matrix:
         python: ${{ fromJson(needs.build-version-compatibility-matrix.outputs.python) }}
     uses: ./.github/workflows/build-datascience-images-template.yml
@@ -157,6 +158,7 @@ jobs:
   build-spark:
     name: build-spark (python-${{ matrix.spark.python_version }})
     strategy:
+      fail-fast: false
       matrix: 
         spark: ${{ fromJson(needs.build-version-compatibility-matrix.outputs.spark) }}
     uses: ./.github/workflows/build-spark-images-template.yml

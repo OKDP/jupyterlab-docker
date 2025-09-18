@@ -76,12 +76,24 @@ def normalize_matrix(versions: list[dict]) -> list[dict]:
   return combinations
 
 def normalize_scala_version(matrix: list[dict]) -> list[dict]:
-    """" dist is prefixed with -scala2.13 for scala version 2.13 
-        Ex.: https://archive.apache.org/dist/spark/spark-3.4.0/
     """
-    result = []
-    n = lambda key,value: (key, value) if key != SCALA_VERSION else (key, value if value == "2.13" else "")
-    return [dict(map(lambda kv: n(kv[0], kv[1]), e.items())) for e in matrix]
+    dist is prefixed with -scala2.13 for scala version 2.13 and spark version < 4
+    Ex.: https://archive.apache.org/dist/spark/spark-3.4.0/spark-3.4.0-bin-hadoop3-scala2.13.tgz 
+    Normalize Scala version in the matrix:
+    - If Scala version is 2.13, keep it; otherwise, set to empty string.
+    - If Spark major version >= 4, set scala_version to empty string.
+    """
+    def normalize(key, value, row):
+        if key == SCALA_VERSION:
+            # Check Spark version as well
+            spark_ver = row.get(SPARK_VERSION, "")
+            major = int(spark_ver.split(".")[0]) if spark_ver else 0
+            if major >= 4:
+                return key, ""
+            return key, value if value == "2.13" else ""
+        return key, value
+
+    return [dict(normalize(k, v, e) for k, v in e.items()) for e in matrix]
 
 def normalize_value (value: str) -> [str]:
   """ Cast values to string and convert simple values to list for github strategy matrix input """

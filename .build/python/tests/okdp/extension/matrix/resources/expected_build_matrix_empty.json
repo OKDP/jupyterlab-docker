@@ -1,242 +1,262 @@
 [
-    {
-          "python_version": "3.10",
-          "spark_version": "3.3.1",
-          "java_version": "17",
-          "scala_version": "",
-          "hadoop_version": "3",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.3.1-python3.10-java17-scala2.12-main-latest",
-          "python_dev_tag": "python3.10-main-latest"
-    },
-    {
-          "python_version": "3.10",
-          "spark_version": "3.3.1",
-          "java_version": "17",
-          "scala_version": "2.13",
-          "hadoop_version": "3",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.3.1-python3.10-java17-scala2.13-main-latest",
-          "python_dev_tag": "python3.10-main-latest"
-    },
-    {
-          "python_version": "3.10",
-          "spark_version": "3.3.2",
-          "java_version": "17",
-          "scala_version": "",
-          "hadoop_version": "3",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.3.2-python3.10-java17-scala2.12-main-latest",
-          "python_dev_tag": "python3.10-main-latest"
-    },
-    {
-          "python_version": "3.10",
-          "spark_version": "3.3.2",
-          "java_version": "17",
-          "scala_version": "2.13",
-          "hadoop_version": "3",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.3.2-python3.10-java17-scala2.13-main-latest",
-          "python_dev_tag": "python3.10-main-latest"
-    },
-    {
-          "python_version": "3.10",
-          "spark_version": "3.3.3",
-          "java_version": "17",
-          "scala_version": "",
-          "hadoop_version": "3",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.3.3-python3.10-java17-scala2.12-main-latest",
-          "python_dev_tag": "python3.10-main-latest"
-    },
-    {
-          "python_version": "3.10",
-          "spark_version": "3.3.3",
-          "java_version": "17",
-          "scala_version": "2.13",
-          "hadoop_version": "3",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.3.3-python3.10-java17-scala2.13-main-latest",
-          "python_dev_tag": "python3.10-main-latest"
-    },
-    {
-          "python_version": "3.10",
-          "spark_version": "3.3.4",
-          "java_version": "17",
-          "scala_version": "",
-          "hadoop_version": "3",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.3.4-python3.10-java17-scala2.12-main-latest",
-          "python_dev_tag": "python3.10-main-latest"
-    },
-    {
-          "python_version": "3.10",
-          "spark_version": "3.3.4",
-          "java_version": "17",
-          "scala_version": "2.13",
-          "hadoop_version": "3",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.3.4-python3.10-java17-scala2.13-main-latest",
-          "python_dev_tag": "python3.10-main-latest"
-    },
-    {
-          "python_version": "3.11",
-          "spark_version": "3.5.0",
-          "java_version": "17",
-          "scala_version": "",
-          "hadoop_version": "3",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.5.0-python3.11-java17-scala2.12-main-latest",
-          "python_dev_tag": "python3.11-main-latest"
-    },
-    {
-          "python_version": "3.11",
-          "spark_version": "3.5.0",
-          "java_version": "17",
-          "scala_version": "2.13",
-          "hadoop_version": "3",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.5.0-python3.11-java17-scala2.13-main-latest",
-          "python_dev_tag": "python3.11-main-latest"
-    },
-    {
-          "python_version": "3.11",
-          "spark_version": "3.5.0",
-          "java_version": "21",
-          "scala_version": "",
-          "hadoop_version": "3",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.5.0-python3.11-java21-scala2.12-main-latest",
-          "python_dev_tag": "python3.11-main-latest"
-    },
-    {
-          "python_version": "3.11",
-          "spark_version": "3.5.0",
-          "java_version": "21",
-          "scala_version": "2.13",
-          "hadoop_version": "3",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.5.0-python3.11-java21-scala2.13-main-latest",
-          "python_dev_tag": "python3.11-main-latest"
-    },
-    {
-          "python_version": "3.11",
-          "spark_version": "3.4.1",
-          "java_version": "17",
-          "scala_version": "",
-          "hadoop_version": "3",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.4.1-python3.11-java17-scala2.12-main-latest",
-          "python_dev_tag": "python3.11-main-latest"
-    },
-    {
-          "python_version": "3.11",
-          "spark_version": "3.4.1",
-          "java_version": "17",
-          "scala_version": "2.13",
-          "hadoop_version": "3",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.4.1-python3.11-java17-scala2.13-main-latest",
-          "python_dev_tag": "python3.11-main-latest"
-    },
-    {
-          "python_version": "3.11",
-          "spark_version": "3.4.2",
-          "java_version": "17",
-          "scala_version": "",
-          "hadoop_version": "3",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.4.2-python3.11-java17-scala2.12-main-latest",
-          "python_dev_tag": "python3.11-main-latest"
-    },
-    {
-          "python_version": "3.11",
-          "spark_version": "3.4.2",
-          "java_version": "17",
-          "scala_version": "2.13",
-          "hadoop_version": "3",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.4.2-python3.11-java17-scala2.13-main-latest",
-          "python_dev_tag": "python3.11-main-latest"
-    },
-    {
-          "python_version": "3.9",
-          "spark_version": "3.2.1",
-          "java_version": "11",
-          "scala_version": "",
-          "hadoop_version": "3.2",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.2.1-python3.9-java11-scala2.12-main-latest",
-          "python_dev_tag": "python3.9-main-latest"
-    },
-    {
-          "python_version": "3.9",
-          "spark_version": "3.2.1",
-          "java_version": "11",
-          "scala_version": "2.13",
-          "hadoop_version": "3.2",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.2.1-python3.9-java11-scala2.13-main-latest",
-          "python_dev_tag": "python3.9-main-latest"
-    },
-    {
-          "python_version": "3.9",
-          "spark_version": "3.2.2",
-          "java_version": "11",
-          "scala_version": "",
-          "hadoop_version": "3.2",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.2.2-python3.9-java11-scala2.12-main-latest",
-          "python_dev_tag": "python3.9-main-latest"
-    },
-    {
-          "python_version": "3.9",
-          "spark_version": "3.2.2",
-          "java_version": "11",
-          "scala_version": "2.13",
-          "hadoop_version": "3.2",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.2.2-python3.9-java11-scala2.13-main-latest",
-          "python_dev_tag": "python3.9-main-latest"
-    },
-    {
-          "python_version": "3.9",
-          "spark_version": "3.2.3",
-          "java_version": "11",
-          "scala_version": "",
-          "hadoop_version": "3.2",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.2.3-python3.9-java11-scala2.12-main-latest",
-          "python_dev_tag": "python3.9-main-latest"
-    },
-    {
-          "python_version": "3.9",
-          "spark_version": "3.2.3",
-          "java_version": "11",
-          "scala_version": "2.13",
-          "hadoop_version": "3.2",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.2.3-python3.9-java11-scala2.13-main-latest",
-          "python_dev_tag": "python3.9-main-latest"
-    },
-    {
-          "python_version": "3.9",
-          "spark_version": "3.2.4",
-          "java_version": "11",
-          "scala_version": "",
-          "hadoop_version": "3.2",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.2.4-python3.9-java11-scala2.12-main-latest",
-          "python_dev_tag": "python3.9-main-latest"
-    },
-    {
-          "python_version": "3.9",
-          "spark_version": "3.2.4",
-          "java_version": "11",
-          "scala_version": "2.13",
-          "hadoop_version": "3.2",
-          "spark_download_url": "https://archive.apache.org/dist/spark/",
-          "spark_dev_tag": "spark3.2.4-python3.9-java11-scala2.13-main-latest",
-          "python_dev_tag": "python3.9-main-latest"
-    }
+      {
+            "python_version": "3.10",
+            "spark_version": "3.3.1",
+            "java_version": "17",
+            "scala_version": "",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.3.1-python3.10-java17-scala2.12-main-latest",
+            "python_dev_tag": "python3.10-main-latest"
+      },
+      {
+            "python_version": "3.10",
+            "spark_version": "3.3.1",
+            "java_version": "17",
+            "scala_version": "2.13",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.3.1-python3.10-java17-scala2.13-main-latest",
+            "python_dev_tag": "python3.10-main-latest"
+      },
+      {
+            "python_version": "3.10",
+            "spark_version": "3.3.2",
+            "java_version": "17",
+            "scala_version": "",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.3.2-python3.10-java17-scala2.12-main-latest",
+            "python_dev_tag": "python3.10-main-latest"
+      },
+      {
+            "python_version": "3.10",
+            "spark_version": "3.3.2",
+            "java_version": "17",
+            "scala_version": "2.13",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.3.2-python3.10-java17-scala2.13-main-latest",
+            "python_dev_tag": "python3.10-main-latest"
+      },
+      {
+            "python_version": "3.10",
+            "spark_version": "3.3.3",
+            "java_version": "17",
+            "scala_version": "",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.3.3-python3.10-java17-scala2.12-main-latest",
+            "python_dev_tag": "python3.10-main-latest"
+      },
+      {
+            "python_version": "3.10",
+            "spark_version": "3.3.3",
+            "java_version": "17",
+            "scala_version": "2.13",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.3.3-python3.10-java17-scala2.13-main-latest",
+            "python_dev_tag": "python3.10-main-latest"
+      },
+      {
+            "python_version": "3.10",
+            "spark_version": "3.3.4",
+            "java_version": "17",
+            "scala_version": "",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.3.4-python3.10-java17-scala2.12-main-latest",
+            "python_dev_tag": "python3.10-main-latest"
+      },
+      {
+            "python_version": "3.10",
+            "spark_version": "3.3.4",
+            "java_version": "17",
+            "scala_version": "2.13",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.3.4-python3.10-java17-scala2.13-main-latest",
+            "python_dev_tag": "python3.10-main-latest"
+      },
+      {
+            "python_version": "3.11",
+            "spark_version": "3.5.0",
+            "java_version": "17",
+            "scala_version": "",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.5.0-python3.11-java17-scala2.12-main-latest",
+            "python_dev_tag": "python3.11-main-latest"
+      },
+      {
+            "python_version": "3.11",
+            "spark_version": "3.5.0",
+            "java_version": "17",
+            "scala_version": "2.13",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.5.0-python3.11-java17-scala2.13-main-latest",
+            "python_dev_tag": "python3.11-main-latest"
+      },
+      {
+            "python_version": "3.11",
+            "spark_version": "3.5.0",
+            "java_version": "21",
+            "scala_version": "",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.5.0-python3.11-java21-scala2.12-main-latest",
+            "python_dev_tag": "python3.11-main-latest"
+      },
+      {
+            "python_version": "3.11",
+            "spark_version": "3.5.0",
+            "java_version": "21",
+            "scala_version": "2.13",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.5.0-python3.11-java21-scala2.13-main-latest",
+            "python_dev_tag": "python3.11-main-latest"
+      },
+      {
+            "python_version": "3.11",
+            "spark_version": "3.4.1",
+            "java_version": "17",
+            "scala_version": "",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.4.1-python3.11-java17-scala2.12-main-latest",
+            "python_dev_tag": "python3.11-main-latest"
+      },
+      {
+            "python_version": "3.11",
+            "spark_version": "3.4.1",
+            "java_version": "17",
+            "scala_version": "2.13",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.4.1-python3.11-java17-scala2.13-main-latest",
+            "python_dev_tag": "python3.11-main-latest"
+      },
+      {
+            "python_version": "3.11",
+            "spark_version": "3.4.2",
+            "java_version": "17",
+            "scala_version": "",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.4.2-python3.11-java17-scala2.12-main-latest",
+            "python_dev_tag": "python3.11-main-latest"
+      },
+      {
+            "python_version": "3.11",
+            "spark_version": "3.4.2",
+            "java_version": "17",
+            "scala_version": "2.13",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.4.2-python3.11-java17-scala2.13-main-latest",
+            "python_dev_tag": "python3.11-main-latest"
+      },
+      {
+            "python_version": "3.12",
+            "spark_version": "4.0.0",
+            "java_version": "17",
+            "scala_version": "",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark4.0.0-python3.12-java17-scala2.13-main-latest",
+            "python_dev_tag": "python3.12-main-latest"
+      },
+      {
+            "python_version": "3.12",
+            "spark_version": "4.0.1",
+            "java_version": "17",
+            "scala_version": "",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark4.0.1-python3.12-java17-scala2.13-main-latest",
+            "python_dev_tag": "python3.12-main-latest"
+      },
+      {
+            "python_version": "3.9",
+            "spark_version": "3.2.1",
+            "java_version": "11",
+            "scala_version": "",
+            "hadoop_version": "3.2",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.2.1-python3.9-java11-scala2.12-main-latest",
+            "python_dev_tag": "python3.9-main-latest"
+      },
+      {
+            "python_version": "3.9",
+            "spark_version": "3.2.1",
+            "java_version": "11",
+            "scala_version": "2.13",
+            "hadoop_version": "3.2",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.2.1-python3.9-java11-scala2.13-main-latest",
+            "python_dev_tag": "python3.9-main-latest"
+      },
+      {
+            "python_version": "3.9",
+            "spark_version": "3.2.2",
+            "java_version": "11",
+            "scala_version": "",
+            "hadoop_version": "3.2",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.2.2-python3.9-java11-scala2.12-main-latest",
+            "python_dev_tag": "python3.9-main-latest"
+      },
+      {
+            "python_version": "3.9",
+            "spark_version": "3.2.2",
+            "java_version": "11",
+            "scala_version": "2.13",
+            "hadoop_version": "3.2",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.2.2-python3.9-java11-scala2.13-main-latest",
+            "python_dev_tag": "python3.9-main-latest"
+      },
+      {
+            "python_version": "3.9",
+            "spark_version": "3.2.3",
+            "java_version": "11",
+            "scala_version": "",
+            "hadoop_version": "3.2",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.2.3-python3.9-java11-scala2.12-main-latest",
+            "python_dev_tag": "python3.9-main-latest"
+      },
+      {
+            "python_version": "3.9",
+            "spark_version": "3.2.3",
+            "java_version": "11",
+            "scala_version": "2.13",
+            "hadoop_version": "3.2",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.2.3-python3.9-java11-scala2.13-main-latest",
+            "python_dev_tag": "python3.9-main-latest"
+      },
+      {
+            "python_version": "3.9",
+            "spark_version": "3.2.4",
+            "java_version": "11",
+            "scala_version": "",
+            "hadoop_version": "3.2",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.2.4-python3.9-java11-scala2.12-main-latest",
+            "python_dev_tag": "python3.9-main-latest"
+      },
+      {
+            "python_version": "3.9",
+            "spark_version": "3.2.4",
+            "java_version": "11",
+            "scala_version": "2.13",
+            "hadoop_version": "3.2",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark3.2.4-python3.9-java11-scala2.13-main-latest",
+            "python_dev_tag": "python3.9-main-latest"
+      }
 ]

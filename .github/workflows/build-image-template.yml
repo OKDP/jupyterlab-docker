@@ -65,8 +65,8 @@ jobs:
         if: env.ACT != 'true'
         uses: ./.github/actions/free-disk-space
 
-      - name: Set up QEMU and Docker Buildx 📦
-        uses: ./.github/actions/setup-buildx
+      # - name: Set up QEMU and Docker Buildx 📦
+      #  uses: ./.github/actions/setup-buildx
 
       - name: Patch create a build environment
         uses: ./.github/actions/patch-create-dev-env

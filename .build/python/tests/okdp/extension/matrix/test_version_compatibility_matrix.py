@@ -31,6 +31,21 @@ def test_group_versions_by(
         "hadoop_version": ["3"],
         "spark_download_url": ["https://archive.apache.org/dist/spark/"]
     },{
+    "python_version": ["3.12"],
+    "spark_version": ["4.0.0"],
+    "java_version": ["17"],
+    "scala_version": ["2.13"],
+    "hadoop_version": ["3"],
+    "spark_download_url": ["https://archive.apache.org/dist/spark/"]
+    },
+    {
+        "python_version": ["3.12"],
+        "spark_version": ["4.0.1"],
+        "java_version": ["17"],
+        "scala_version": ["2.13"],
+        "hadoop_version": ["3"],
+        "spark_download_url": ["https://archive.apache.org/dist/spark/"]
+    },{
         "python_version": ["3.9"],
         "spark_version": [ "3.2.1", "3.2.2", "3.2.3", "3.2.4"],
         "java_version": ["11"],
@@ -57,7 +72,7 @@ def test_filter_by_empty_versions(
     (spark_matrix, python_version) = vcm.generate_matrix()
 
     # Then: check the number of combinations when the build_matrix is empty
-    expected_nb_combinations = 24
+    expected_nb_combinations = 26
     actual_nb_combinations = len(spark_matrix)
     assert actual_nb_combinations == expected_nb_combinations, f"The number of elements should be {expected_nb_combinations}, got {actual_nb_combinations}"
 
@@ -144,7 +159,42 @@ def test_filter_by_spark_version_and_scala_version(
    
     assert spark_matrix == to_dict(expected_test_filter_spark_version)
     assert python_version == to_dict("""[{"python_version": "3.9", "python_dev_tag": "python3.9-main-latest"}]""")
+
+def test_filter_by_spark4_version_and_scala_version(
+    version_compatibility_matrix_data: list[dict],
+) -> None:
+    # Given: version_compatibility_matrix_data
+    version_compatibility_matrix = version_compatibility_matrix_data
+    build_matrix = {"spark_version": "4.0.1", "scala_version": "2.13"}
+   
+    # When:
+    vcm = MockedVersionCompatibilityMatrix(compatibility_matrix = version_compatibility_matrix, 
+                                           build_matrix = build_matrix, 
+                                           git_branch="main")
+    vcm._normalize_values_()
+    (spark_matrix, python_version) = vcm.generate_matrix()
+
+    # Then: check the number of combinations when the build_matrix is empty
+    expected_nb_combinations = 1
+    actual_nb_combinations = len(spark_matrix)
+    expected_test_filter_spark_version = """[
+      {
+            "python_version": "3.12",
+            "spark_version": "4.0.1",
+            "java_version": "17",
+            "scala_version": "",
+            "hadoop_version": "3",
+            "spark_download_url": "https://archive.apache.org/dist/spark/",
+            "spark_dev_tag": "spark4.0.1-python3.12-java17-scala2.13-main-latest",
+            "python_dev_tag": "python3.12-main-latest"
+      }
+    ]"""
+    assert actual_nb_combinations == expected_nb_combinations, f"The number of elements should be {expected_nb_combinations}, got {actual_nb_combinations}"
+   
+    assert spark_matrix == to_dict(expected_test_filter_spark_version)
+    assert python_version == to_dict("""[{"python_version": "3.12", "python_dev_tag": "python3.12-main-latest"}]""")
     
+
 def test_filter_by_multiple_versions(
     version_compatibility_matrix_data: list[dict],
 ) -> None:
