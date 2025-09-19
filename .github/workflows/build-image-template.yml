@@ -153,9 +153,15 @@ jobs:
         working-directory: ./
         shell: bash
 
+      - name: Download Spark distribution into Github release (spark-tarballs) ⬇️
+        if: ${{ env.ACT != 'true' && contains(inputs.image, 'pyspark-notebook') }}
+        uses: ./.github/actions/download-spark
+        with:
+          build-args: ${{ inputs.build-args }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build image 🛠
         run: |
-          #docker buildx build --platform=linux/amd64 --rm --force-rm --tag ...
           docker build --rm --force-rm --tag $REGISTRY/$OWNER/${{ inputs.image }} \
             --tag $REGISTRY/$OWNER/$SHORT_IMAGE_NAME:latest images/$SHORT_IMAGE_NAME/ \
             --build-arg REGISTRY=$REGISTRY \

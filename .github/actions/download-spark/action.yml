@@ -1,0 +1,74 @@
+name: Download Apache Spark Distribution
+description: |
+  Downloads a specific version of Apache Spark for use in workflows.
+  The action first attempts to retrieve the Spark tarball from GitHub Actions artifacts to avoid slow downloads.
+  Older versions are available from the Apache archive (https://archive.apache.org/dist/spark), 
+  since the main downloads site (https://downloads.apache.org/spark/) only hosts recent releases.
+  Downloading from the archive can take up to 40 minutes.
+
+inputs:
+  spark_download_url:
+    description: Spark dist download url
+    required: false
+    default: "https://archive.apache.org/dist/spark/"
+  build-args:
+    description: "pyspark-notebook build args."
+    required: true
+  github_token:
+    description: "GitHub token to upload release assets"
+    required: true
+# It's important to download the file into /tmp/spark.tar.gz
+# so that patch/images/pyspark-notebook/setup_spark.py can find it
+runs:
+  using: composite
+  steps:
+    - name: Extract spark dist parameters from build-args 📦
+      run: |
+        for build_arg in ${{ inputs.build-args }}
+        do
+          echo "$build_arg" >> $GITHUB_ENV
+        done
+      shell: bash
+
+    - name: Set Spark distribution name
+      run: |
+        if [ -n "${scala_version}" ]; then
+          ARTIFACT_NAME="spark-${spark_version}-bin-hadoop${hadoop_version}-scala${scala_version}"
+        else
+          ARTIFACT_NAME="spark-${spark_version}-bin-hadoop${hadoop_version}"
+        fi
+        echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
+        echo "DOWNLOAD_DIR=/tmp" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Check if Spark tarball exists on Github release (spark-tarballs)
+      run: |
+        echo "Checking if ${ARTIFACT_NAME}.tgz exists on release spark-tarballs..."
+        if gh release view spark-tarballs --json assets --jq '.assets[].name' | grep -q "^${ARTIFACT_NAME}.tgz$"; then
+          echo "artifact_not_found=false" >> $GITHUB_ENV
+          echo "Spark tarball already exists in release."
+        else
+          echo "artifact_not_found=true" >> $GITHUB_ENV
+          echo "Spark tarball not found in release, will fallback to Apache archive."
+        fi
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+      shell: bash
+
+    - name: Download Spark distribution
+      if: env.artifact_not_found == 'true'
+      run: |
+        SPARK_URL="${{ inputs.spark_download_url }}spark-${spark_version}/${ARTIFACT_NAME}.tgz"
+        echo "Downloading Spark from $SPARK_URL"
+        curl -fL --retry 3 --retry-delay 5 -o ${DOWNLOAD_DIR}/${ARTIFACT_NAME}.tgz "$SPARK_URL"
+      shell: bash
+
+    - name: Upload Spark tarball to GitHub release (spark-tarballs)
+      if: env.artifact_not_found == 'true'
+      run: |
+        echo "Uploading ${ARTIFACT_NAME}.tgz to release spark-tarballs..."
+        gh release upload spark-tarballs "${DOWNLOAD_DIR}/${ARTIFACT_NAME}.tgz" --clobber
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+      shell: bash
+

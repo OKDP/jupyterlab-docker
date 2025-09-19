@@ -86,6 +86,7 @@ defaults:
     working-directory: ./docker-stacks
     
 permissions:
+  contents: write
   packages: write
 
 jobs:
