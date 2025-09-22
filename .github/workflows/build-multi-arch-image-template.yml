@@ -1,0 +1,74 @@
+name: Jupyter build multi arch image template
+
+on:
+  workflow_call:
+    inputs:
+      parent-image:
+        description: Parent image name
+        required: true
+        type: string
+      image:
+        description: Image name
+        required: true
+        type: string
+      publish_to_registry:
+        description: Whether to push to the registry
+        required: false
+        type: string
+        default: false
+      ci_registry:
+        description: The registry used to push ci images
+        required: false
+        type: string
+        default: ghcr.io
+      registry:
+        description: The container registry
+        required: false
+        type: string
+        default: quay.io
+      build-args:
+        description: Build args comma separated list, ex. PYTHON_VERSION=3.11, ...
+        required: false
+        type: string
+      git_latest_release_tag:
+        description: The latest remote release tag
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  build-multi-arch-image:
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on: [ubuntu-24.04, ubuntu-24.04-arm]
+        include:
+          - runs-on: ubuntu-24.04
+            platform: amd64
+          - runs-on: ubuntu-24.04-arm
+            platform: arm64
+    uses: ./.github/workflows/build-image-template.yml
+    with:
+      parent-image: ${{ inputs.parent-image }}
+      image: ${{ inputs.image }}
+      registry: ${{ inputs.registry }}
+      publish_to_registry: ${{ inputs.publish_to_registry }}
+      git_latest_release_tag: ${{ inputs.git_latest_release_tag }}
+      platform: ${{ matrix.platform }}
+      runs-on: ${{ matrix.runs-on }}
+      build-args: ${{ inputs.build-args }}
+    secrets: inherit
+
+  push-multi-arch-image:
+    uses: ./.github/workflows/push-image-template.yml
+    with:
+      image: ${{ inputs.image }}
+      registry: ${{ inputs.registry }}
+      publish_to_registry: ${{ inputs.publish_to_registry }}
+      git_latest_release_tag: ${{ inputs.git_latest_release_tag }}
+      platform_amd64: amd64
+      platform_arm64: arm64
+      runs-on: ubuntu-latest
+    secrets: inherit
+    needs: [build-multi-arch-image]
+

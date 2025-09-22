@@ -1,0 +1,143 @@
+name: Jupyter push multi arch image template
+
+on:
+  workflow_call:
+    inputs:
+      image:
+        description: Image name with tag (including registry/repo, e.g. docker.io/myuser/myimage:mytag)
+        required: true
+        type: string
+      publish_to_registry:
+        description: Whether to push to the registry
+        required: false
+        type: string
+        default: false
+      ci_registry:
+        description: The registry used to push ci images
+        required: false
+        type: string
+        default: ghcr.io
+      registry:
+        description: The container registry
+        required: false
+        type: string
+        default: quay.io
+      git_latest_release_tag:
+        description: The latest remote release tag
+        required: false
+        type: string
+        default: ""
+      runs-on:
+        description: GitHub Actions Runner image
+        required: true
+        type: string
+      platform_amd64:
+        description: Target image platform for AMD64 architecture
+        required: true
+        type: string
+      platform_arm64:
+        description: Target image platform for AMD64 architecture
+        required: true
+        type: string
+
+defaults:
+  run:
+    working-directory: ./docker-stacks
+
+jobs:
+  push-image:
+    name: ${{ inputs.image }}
+    runs-on: ${{ inputs.runs-on }}
+
+    steps:
+      ### The publish and periodic rebuilds are based on the latest stable github release tag
+      - name: Checkout latest Github Release tag (${{ inputs.git_latest_release_tag }}) ⚡️
+        if: inputs.publish_to_registry == 'true'
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.git_latest_release_tag }}
+
+      - name: Checkout Repo ⚡️
+        if: inputs.publish_to_registry == 'false'
+        uses: actions/checkout@v5
+
+      - name: Patch create a build environment
+        uses: ./.github/actions/patch-create-dev-env
+
+      - name: Create dev environment 📦
+        # We need to have a recent docker version
+        # More info: https://github.com/jupyter/docker-stacks/pull/2255
+        # Can be removed after Docker Engine is updated
+        # https://github.com/actions/runner-images/issues/11766
+        #uses: ./docker-stacks/.github/actions/create-dev-env
+        uses: ./.github/actions/create-dev-env
+
+      - name: Setup dev env patchs 📦
+        uses: ./.github/actions/install-okdp-extension
+
+      - name: Expose git commit sha as env variable
+        uses: rlespinasse/git-commit-data-action@v1.5.0
+
+      - name: Login to the CI registry 🔐
+        if: inputs.publish_to_registry == 'false'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ inputs.ci_registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login into official registry 🔐
+        if: inputs.publish_to_registry == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ inputs.registry }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_ROBOT_TOKEN }}
+
+      - name: Set CI Github container registry namespace
+        if: inputs.publish_to_registry == 'false'
+        run:  |
+          echo "OWNER=${GITHUB_REPOSITORY_OWNER@L}" >> $GITHUB_ENV
+          echo "REGISTRY=${{ inputs.ci_registry }}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Set official publish container registry namespace
+        if: inputs.publish_to_registry == 'true'
+        run:  |
+          echo "OWNER=${GITHUB_REPOSITORY_OWNER@L}/jupyter" >> $GITHUB_ENV
+          echo "REGISTRY=${{ inputs.registry }}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Merge ${{ inputs.platform_amd64 }} and ${{ inputs.platform_arm64 }} image tags
+        uses: ./.github/actions/docker-tags-merge
+        with:
+          image: ${{ inputs.image }}
+          registry: ${{ env.REGISTRY }}
+          platform_amd64: ${{ inputs.platform_amd64 }}
+          platform_arm64: ${{ inputs.platform_arm64 }}
+
+      - name: Push to ci registry (${{ inputs.ci_registry }}) 📤
+        if: inputs.publish_to_registry == 'false'
+        run: |
+          docker push --all-tags $REGISTRY/$OWNER/$SHORT_IMAGE_NAME
+        shell: bash
+
+      - name: Push to public registry (${{ inputs.registry }}) 📤
+        if: inputs.publish_to_registry == 'true'
+        run: |
+          docker push --all-tags $REGISTRY/$OWNER/$SHORT_IMAGE_NAME
+        shell: bash
+
+      - name: Create multi-arch (${{ inputs.platform_amd64 }}/${{ inputs.platform_arm64 }}) image for ${{ inputs.image }} 📤
+        run: |
+          # The tags are already in the form: $REGISTRY/$OWNER/${{ inputs.image }}
+          for tag in $IMAGE_TAGS
+          do
+            echo "Creating multi-arch manifest for $tag ..."
+            docker manifest create $tag $tag-${{ inputs.platform_amd64 }} $tag-${{ inputs.platform_arm64 }}
+            echo "Pushing multi-arch manifest $tag ..."
+            docker manifest push $tag
+          done
+        shell: bash
+
+
