@@ -1,4 +1,5 @@
-FROM quay.io/jupyter/base-notebook
+ARG BASE_IMAGE=quay.io/jupyter/base-notebook
+FROM $BASE_IMAGE
 
 # Fix: https://github.com/hadolint/hadolint/wiki/DL4006
 # Fix: https://github.com/koalaman/shellcheck/wiki/SC3014
@@ -6,12 +7,12 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 USER root
 
-ENV MSSQL_DRIVER "ODBC Driver 18 for SQL Server"
+ENV MSSQL_DRIVER="ODBC Driver 18 for SQL Server"
 ENV PATH="/opt/mssql-tools18/bin:${PATH}"
 
 RUN apt-get update --yes && \
     apt-get install --yes --no-install-recommends curl gnupg2 lsb-release && \
-    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl -fsSL "https://packages.microsoft.com/keys/microsoft.asc" | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg && \
     curl "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list" > /etc/apt/sources.list.d/mssql-release.list && \
     apt-get update --yes && \
     ACCEPT_EULA=Y apt-get install --yes --no-install-recommends msodbcsql18 && \

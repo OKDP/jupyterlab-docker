@@ -86,6 +86,7 @@ defaults:
     working-directory: ./docker-stacks
     
 permissions:
+  contents: write
   packages: write
 
 jobs:
@@ -97,16 +98,24 @@ jobs:
       python: ${{ steps.set-matrix.outputs.python }}
     steps:
       - name: Checkout Repo ⚡️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
-      - name: Setup dev env patchs 📦
-        uses: ./.github/actions/install-patchs-and-extension
-      
+      - name: Patch create a build environment
+        uses: ./.github/actions/patch-create-dev-env
+
       - name: Create dev environment 📦
-        uses: ./docker-stacks/.github/actions/create-dev-env
+        # We need to have a recent docker version
+        # More info: https://github.com/jupyter/docker-stacks/pull/2255
+        # Can be removed after Docker Engine is updated
+        # https://github.com/actions/runner-images/issues/11766
+        #uses: ./docker-stacks/.github/actions/create-dev-env
+        uses: ./.github/actions/create-dev-env
+
+      - name: Setup dev env patchs 📦
+        uses: ./.github/actions/install-okdp-extension
       
-      - name: Run unit tests (versions compatibility matrix)
-        run:  pytest python/tests -v --color=yes
+      - name: Run unit tests (okdp package extension)
+        run:  pytest -c python/pyproject.toml python/tests  -v --color=yes
         working-directory: ./.build
         shell: bash
 
@@ -138,6 +147,7 @@ jobs:
   build-datascience:
     name: build-datascience (python-${{ matrix.python.python_version }})
     strategy:
+      fail-fast: false
       matrix:
         python: ${{ fromJson(needs.build-version-compatibility-matrix.outputs.python) }}
     uses: ./.github/workflows/build-datascience-images-template.yml
@@ -149,6 +159,7 @@ jobs:
   build-spark:
     name: build-spark (python-${{ matrix.spark.python_version }})
     strategy:
+      fail-fast: false
       matrix: 
         spark: ${{ fromJson(needs.build-version-compatibility-matrix.outputs.spark) }}
     uses: ./.github/workflows/build-spark-images-template.yml

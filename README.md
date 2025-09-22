@@ -133,7 +133,28 @@ $ act  --help
 
 # OKDP custom extensions
 
-1. [Tagging extension](.build/python/okdp/extension/tagging) is based on the original [jupyter docker-stacks](docker-stacks/tagging) source files 
-2. [Patchs](.build/python/okdp/patch/README.md) patchs the original [jupyter docker-stacks](docker-stacks/tests) in order to run the tests
-3. [Version compatibility matrix](.build/python/okdp/extension/matrix) to generate all the compatible versions combintations for pyspark
+1. [Tagging extension](.build/python/src/okdp/extension/tagging) is based on the original [jupyter docker-stacks](docker-stacks/tagging) source files 
+2. [Patchs](.build/python/src/okdp/patch/README.md) patchs the original [jupyter docker-stacks](docker-stacks/tests) in order to run the tests
+3. [Version compatibility matrix](.build/python/src/okdp/extension/matrix) to generate all the compatible versions combintations for pyspark
 4. [Unit tests](.build/python/tests) in order to test okdp extension at every pipeline run
+
+
+## Update jupyter/docker-stacks
+
+The [docker-stacks](./docker-stacks) folder is included in this repository using **[git subtree](https://www.atlassian.com/git/tutorials/git-subtree)**.  
+This means the upstream [`jupyter/docker-stacks`](https://github.com/jupyter/docker-stacks) code is fully copied into our repo, so contributors don’t need to worry about submodules or special clone flags.
+
+To bring in the latest changes from upstream:
+
+```shell
+# Add the upstream remote
+git remote add docker-stacks https://github.com/jupyter/docker-stacks.git
+
+# Fetch the latest commits from upstream
+git fetch docker-stacks
+
+# Merge upstream changes into docker-stacks/ folder and squash the history
+git subtree pull --prefix=docker-stacks docker-stacks main --squash
+```
+
+Make sure the [OKDP custom extensions](#okdp-custom-extensions) work correctly by running at least the [unit tests](.build/python/tests).

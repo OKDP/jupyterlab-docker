@@ -195,3 +195,5 @@ bin/
 ### vscode ###
 .vscode/
 
+### Miscellaneous
+.tmp/

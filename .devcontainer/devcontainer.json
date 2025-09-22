@@ -1,0 +1,29 @@
+{
+    "name": "Python Dev Container",
+    "build": {
+      "context": "..",
+      "dockerfile": "Dockerfile"
+    },
+    "containerEnv": {
+      "PYTHONPATH": "${containerWorkspaceFolder}/.build/python/src:${containerWorkspaceFolder}/docker-stacks:${PYTHONPATH:-}"
+    },
+    "customizations": {
+      "vscode": {
+        "settings": {
+          "python.defaultInterpreterPath": "/opt/venv/bin/python",
+          "python.linting.enabled": true,
+          "python.formatting.provider": "black"
+        },
+        "extensions": [
+          "ms-python.python",
+          "ms-python.vscode-pylance",
+          "ms-toolsai.jupyter",
+          "mhutchie.git-graph",
+          "esbenp.prettier-vscode",
+          "bradlc.vscode-tailwindcss",
+          "devondcarew.bazel-code"
+        ]
+      }
+    }
+}
+

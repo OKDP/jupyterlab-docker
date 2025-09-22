@@ -1,8 +1,9 @@
-FROM quay.io/jupyter/minimal-notebook
+ARG BASE_IMAGE=quay.io/jupyter/minimal-notebook
+FROM $BASE_IMAGE
 
 # Name your environment and choose the Python version
-ARG env_name=python310
-ARG py_ver=3.10
+ARG env_name=python313
+ARG py_ver=3.13
 
 # You can add additional libraries here
 RUN mamba create --yes -p "${CONDA_DIR}/envs/${env_name}" \

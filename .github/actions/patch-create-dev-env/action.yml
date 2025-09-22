@@ -1,0 +1,16 @@
+name: Patch create a build environment
+description: Patch create a build environment ./docker-stacks/.github/actions/create-dev-env
+
+# In order for ./docker-stacks/.github/actions/create-dev-env to work, 
+# copy the requirements-dev.txt files into root project folder
+runs:
+  using: composite
+  steps:
+  - name: Patch create a build environment 📦
+    run: |
+      cp -f requirements-dev.txt ../requirements-dev.txt
+      cat ../.build/python/requirements-dev.txt >> ../requirements-dev.txt
+    working-directory: ./docker-stacks
+    shell: bash
+
+

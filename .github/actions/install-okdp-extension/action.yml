@@ -1,0 +1,22 @@
+name: Install OKDP extension and patchs
+description: Install OKDP extension and patchs
+
+runs:
+  using: composite
+  steps:
+
+  - name: Set PYTHONPATH
+    run: |
+      echo "PYTHONPATH=${{ github.workspace }}/.build/python/src:${{ github.workspace }}/docker-stacks:${PYTHONPATH:-}" >> $GITHUB_ENV
+    shell: bash
+
+  - name: Install okdp extension package 📦
+    run: |
+       pip install .build/python
+    shell: bash
+
+  - name: Copy patchs 📦
+    run: |
+       cp -fr .build/python/src/okdp/patch/* ./docker-stacks/
+    shell: bash
+

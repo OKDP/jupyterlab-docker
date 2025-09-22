@@ -2,8 +2,8 @@
 # Distributed under the terms of the Modified BSD License.
 ARG REGISTRY=quay.io
 ARG OWNER=jupyter
-ARG BASE_CONTAINER=$REGISTRY/$OWNER/scipy-notebook
-FROM $BASE_CONTAINER
+ARG BASE_IMAGE=$REGISTRY/$OWNER/scipy-notebook
+FROM $BASE_IMAGE
 
 LABEL maintainer="Jupyter Project <jupyter@googlegroups.com>"
 
@@ -24,7 +24,7 @@ RUN apt-get update --yes && \
     ca-certificates-java && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# If spark_version is not set, latest stable Spark will be installed
+# If spark_version is not set, latest Spark will be installed
 ARG spark_version
 ARG hadoop_version="3"
 # If scala_version is not set, Spark without Scala will be installed
@@ -51,19 +51,25 @@ RUN /opt/setup-scripts/setup_spark.py \
 COPY ipython_kernel_config.py "/etc/ipython/"
 RUN fix-permissions "/etc/ipython/"
 
+# macOS Rosetta virtualization creates junk directory which gets owned by root further up.
+# It'll get re-created, but as USER runner after the next directive so hopefully should not cause permission issues.
+#
+# More info: https://github.com/jupyter/docker-stacks/issues/2296
+# hadolint ignore=DL3059
+RUN rm -rf "/home/${NB_USER}/.cache/"
+
 USER ${NB_UID}
 
 # Install pyarrow
 # NOTE: It's important to ensure compatibility between Pandas versions.
 # The pandas version in this Dockerfile should match the version
 # on which the Pandas API for Spark is built.
-# To find the right version:
-# 1. Check out the Spark branch you are on: <https://github.com/apache/spark>
-# 2. Find the pandas version in the file `dev/infra/Dockerfile`.
+# To find the right version, check the pandas version being installed here:
+# https://github.com/apache/spark/blob/<SPARK_VERSION>/dev/infra/Dockerfile
 RUN mamba install --yes \
     'grpcio-status' \
     'grpcio' \
-    'pandas=2.0.3' \
+    'pandas=2.2.3' \
     'pyarrow' && \
     mamba clean --all -f -y && \
     fix-permissions "${CONDA_DIR}" && \

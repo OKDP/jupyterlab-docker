@@ -1,48 +1,56 @@
-name: Download build manifests from GitHub artifacts and push them to GitHub wiki
+name: Download build history lines and manifests from GitHub artifacts and push them to the GitHub wiki
 # We're doing everything in one workflow on purpose
 # This way we make sure we don't access wiki pages from several jobs simultaneously
 
 env:
-  PUSH_TO_REGISTRY: ${{ (github.repository_owner == 'jupyter' || github.repository_owner == 'mathbunnyru') && (github.ref == 'refs/heads/main' || github.event_name == 'schedule') }}
+  PUSH_TO_REGISTRY: ${{ github.ref == 'refs/heads/main' || github.event_name == 'schedule' }}
 
 on:
   workflow_call:
 
 jobs:
   wiki-update:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
 
     steps:
       - name: Checkout Repo ⚡️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - name: Create dev environment 📦
         uses: ./.github/actions/create-dev-env
 
       - name: Download all history lines 📥
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: "*-history_line"
           path: /tmp/jupyter/hist_lines/
 
       - name: Download all manifests 📥
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: "*-manifest"
           path: /tmp/jupyter/manifests/
 
       - name: Checkout Wiki Repo 📃
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ github.repository }}.wiki
-          path: wiki/
+          path: wiki_src/
 
       - name: Update wiki 🏷
-        run: python3 -m tagging.update_wiki --wiki-dir wiki/ --hist-lines-dir /tmp/jupyter/hist_lines/ --manifests-dir /tmp/jupyter/manifests/
+        run: |
+          python3 -m wiki.update_wiki \
+            --wiki-dir wiki_src/ \
+            --hist-lines-dir /tmp/jupyter/hist_lines/ \
+            --manifests-dir /tmp/jupyter/manifests/ \
+            --repository ${{ github.repository }}
         shell: bash
 
       - name: Push Wiki to GitHub 📤
         if: env.PUSH_TO_REGISTRY == 'true'
-        uses: stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d # v5.0.0
+        uses: stefanzweifel/git-auto-commit-action@778341af668090896ca464160c2def5d1d1a3eb0 # v6.0.1
         with:
           commit_message: "Automated wiki publish for ${{ github.sha }}"
-          repository: wiki/
+          repository: wiki_src/

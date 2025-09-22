@@ -27,10 +27,10 @@ pre-commit install
 ### Run
 
 Now, _pre-commit_ (and so configured hooks) will run automatically on `git commit` on each changed file.
-However, it is also possible to trigger it against all files.
+However, you can also run it against all files manually.
 
 ```{note}
-Hadolint pre-commit uses Docker to run, so `docker` should be running while running this command.
+Hadolint pre-commit uses Docker to run, so `docker` should be running while executing this command.
 ```
 
 ```sh
@@ -38,13 +38,13 @@ pre-commit run --all-files --hook-stage manual
 ```
 
 ```{note}
-We're running `pre-commit` with `--hook-stage manual`, because works with changed files, which doesn't work well for mypy.
+We're running `pre-commit` with `--hook-stage manual`, because `pre-commit` is run on modified files only, which doesn't work well with `mypy --follow-imports error`.
 More information can be found in [`.pre-commit-config.yaml` file](https://github.com/jupyter/docker-stacks/blob/main/.pre-commit-config.yaml)
 ```
 
 ## Image Lint
 
-To comply with [Docker best practices](https://docs.docker.com/develop/develop-images/dockerfile_best-practices),
+To comply with [Docker best practices](https://docs.docker.com/build/building/best-practices/),
 we are using the [Hadolint](https://github.com/hadolint/hadolint) tool to analyze each `Dockerfile`.
 
 ### Ignoring Rules
@@ -58,11 +58,10 @@ The following rules are ignored by default for all images in the `.hadolint.yaml
 - [`DL3008`][dl3008]: System packages are always updated (`apt-get`) to the latest version.
 - [`DL3013`][dl3013]: We always install the latest packages using `pip`
 
-The preferred way to do it for other rules is to flag ignored ones in the `Dockerfile`.
-
-> It is also possible to ignore rules by using a special comment directly above the Dockerfile instruction you want to make an exception for.
-> Ignore rule comments look like `# hadolint ignore=DL3001,SC1081`.
-> For example:
+The preferred way to ignore other rules is to flag them in the `Dockerfile`.
+You can use a special comment directly above the Dockerfile instruction you want to make an exception for.
+Ignore rule comments look like `# hadolint ignore=DL3001,SC1081`.
+For example:
 
 ```dockerfile
 FROM ubuntu
