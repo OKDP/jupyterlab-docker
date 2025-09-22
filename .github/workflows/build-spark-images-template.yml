@@ -49,21 +49,16 @@ on:
         required: false
         type: string
         default: ""
-      runs-on:
-        description: GitHub Actions Runner image
-        required: true
-        type: string
 
 jobs:
   pyspark:
-    uses: ./.github/workflows/build-image-template.yml
+    uses: ./.github/workflows/build-multi-arch-image-template.yml
     with:
       parent-image: scipy-notebook:${{ inputs.python_dev_tag }}
       image: pyspark-notebook:${{ inputs.spark_dev_tag }}
       registry: ${{ inputs.registry }}
       publish_to_registry: ${{ inputs.publish_to_registry }}
       git_latest_release_tag: ${{ inputs.git_latest_release_tag }}
-      runs-on: ${{ inputs.runs-on }}
       build-args:
         spark_download_url=${{ inputs.spark_download_url }}
         spark_version=${{ inputs.spark_version }}
@@ -73,14 +68,13 @@ jobs:
     secrets: inherit
 
   all-spark:
-    uses: ./.github/workflows/build-image-template.yml
+    uses: ./.github/workflows/build-multi-arch-image-template.yml
     with:
       parent-image: pyspark-notebook:${{ inputs.spark_dev_tag }}
       image: all-spark-notebook:${{ inputs.spark_dev_tag }}
       registry: ${{ inputs.registry }}
       publish_to_registry: ${{ inputs.publish_to_registry }}
       git_latest_release_tag: ${{ inputs.git_latest_release_tag }}
-      runs-on: ${{ inputs.runs-on }}
     secrets: inherit
     needs: [pyspark]
 

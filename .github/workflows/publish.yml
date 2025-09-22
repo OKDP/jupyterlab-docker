@@ -33,7 +33,7 @@ jobs:
 
   latest-github-release:
     if: github.repository_owner == 'OKDP'
-    runs-on: "ubuntu-latest"
+    runs-on: ubuntu-latest
     outputs:
       tag_name: ${{ steps.git-release-tag.outputs.tag_name }}
     steps:
@@ -58,7 +58,7 @@ jobs:
             echo "prerelease: ${{ steps.git-release-tag.outputs.prerelease }}"
         shell: bash
 
-  build-version-compatibility-matrix:
+  spark-version-matrix:
     runs-on: ubuntu-latest
     outputs:
       spark: ${{ steps.set-matrix.outputs.spark }}
@@ -104,7 +104,7 @@ jobs:
     name: publish-base (python-${{ matrix.python.python_version }})
     strategy:
       matrix:
-        python: ${{ fromJson(needs.build-version-compatibility-matrix.outputs.python) }}
+        python: ${{ fromJson(needs.spark-version-matrix.outputs.python) }}
     uses: ./.github/workflows/build-base-images-template.yml
     with:
       python_version: ${{ matrix.python.python_version }}
@@ -112,9 +112,8 @@ jobs:
       publish_to_registry: "true"
       registry: ${{ vars.REGISTRY || 'quay.io' }}
       git_latest_release_tag: ${{ needs.latest-github-release.outputs.tag_name }}
-      runs-on: ubuntu-latest
     secrets: inherit
-    needs: [latest-github-release,build-version-compatibility-matrix]
+    needs: [latest-github-release,spark-version-matrix]
 
   publish-datascience:
     if: github.repository_owner == 'OKDP' && needs.latest-github-release.outputs.tag_name != ''
@@ -122,23 +121,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ${{ fromJson(needs.build-version-compatibility-matrix.outputs.python) }}
+        python: ${{ fromJson(needs.spark-version-matrix.outputs.python) }}
     uses: ./.github/workflows/build-datascience-images-template.yml
     with:
       python_dev_tag: ${{ matrix.python.python_dev_tag }}
       publish_to_registry: "true"
       registry: ${{ vars.REGISTRY || 'quay.io' }}
       git_latest_release_tag: ${{ needs.latest-github-release.outputs.tag_name }}
-      runs-on: ubuntu-latest
     secrets: inherit
-    needs: [latest-github-release, build-version-compatibility-matrix, publish-base]
+    needs: [latest-github-release, spark-version-matrix, publish-base]
 
   publish-spark:
     if: github.repository_owner == 'OKDP' && needs.latest-github-release.outputs.tag_name != ''
     strategy:
       fail-fast: false
       matrix: 
-        spark: ${{ fromJson(needs.build-version-compatibility-matrix.outputs.spark) }}
+        spark: ${{ fromJson(needs.spark-version-matrix.outputs.spark) }}
     uses: ./.github/workflows/build-spark-images-template.yml
     with:
       spark_download_url: ${{ matrix.spark.spark_download_url }}
@@ -152,9 +150,8 @@ jobs:
       publish_to_registry: "true"
       registry: ${{ vars.REGISTRY || 'quay.io' }}
       git_latest_release_tag: ${{ needs.latest-github-release.outputs.tag_name }}
-      runs-on: ubuntu-latest
     secrets: inherit
-    needs: [latest-github-release, build-version-compatibility-matrix, publish-base]
+    needs: [latest-github-release, spark-version-matrix, publish-base]
 
   ## https://github.com/orgs/community/discussions/67654#discussioncomment-8038649
   partial-rerun-on-failure:

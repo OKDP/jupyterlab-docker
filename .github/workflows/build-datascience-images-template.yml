@@ -21,65 +21,56 @@ on:
         required: false
         type: string
         default: ""
-      runs-on:
-        description: GitHub Actions Runner image
-        required: true
-        type: string
 
 jobs:
   r:
-    uses: ./.github/workflows/build-image-template.yml
+    uses: ./.github/workflows/build-multi-arch-image-template.yml
     with:
       parent-image: minimal-notebook:${{ inputs.python_dev_tag }}
       image: r-notebook:${{ inputs.python_dev_tag }}
       registry: ${{ inputs.registry }}
       publish_to_registry: ${{ inputs.publish_to_registry }}
       git_latest_release_tag: ${{ inputs.git_latest_release_tag }}
-      runs-on: ${{ inputs.runs-on }}
     secrets: inherit
 
   datascience:
-    uses: ./.github/workflows/build-image-template.yml
+    uses: ./.github/workflows/build-multi-arch-image-template.yml
     with:
       parent-image: scipy-notebook:${{ inputs.python_dev_tag }}
       image: datascience-notebook:${{ inputs.python_dev_tag }}
       registry: ${{ inputs.registry }}
       publish_to_registry: ${{ inputs.publish_to_registry }}
       git_latest_release_tag: ${{ inputs.git_latest_release_tag }}
-      runs-on: ${{ inputs.runs-on }}
     secrets: inherit
 
   # julia:
-  #   uses: ./.github/workflows/build-image-template.yml
+  #   uses: ./.github/workflows/build-multi-arch-image-template.yml
   #   with:
   #     parent-image: minimal-notebook:${{ inputs.python_dev_tag }}
   #     image: julia-notebook
   #     registry: ${{ inputs.registry }}
   #     publish_to_registry: ${{ inputs.publish_to_registry }}
   #     git_latest_release_tag: ${{ inputs.git_latest_release_tag }}
-  #     runs-on: ${{ inputs.runs-on }}
   #   secrets: inherit
 
   # tensorflow:
-  #   uses: ./.github/workflows/build-image-template.yml
+  #   uses: ./.github/workflows/build-multi-arch-image-template.yml
   #   with:
   #     parent-image: scipy-notebook:${{ inputs.python_dev_tag }}
   #     image: tensorflow-notebook
   #     registry: ${{ inputs.registry }}
   #     publish_to_registry: ${{ inputs.publish_to_registry }}
   #     git_latest_release_tag: ${{ inputs.git_latest_release_tag }}
-  #     runs-on: ${{ inputs.runs-on }}
   #   secrets: inherit
 
   # pytorch:
-  #   uses: ./.github/workflows/build-image-template.yml
+  #   uses: ./.github/workflows/build-multi-arch-image-template.yml
   #   with:
   #     parent-image: scipy-notebook:${{ inputs.python_dev_tag }}
   #     image: pytorch-notebook
   #     registry: ${{ inputs.registry }}
   #     publish_to_registry: ${{ inputs.publish_to_registry }}
   #     git_latest_release_tag: ${{ inputs.git_latest_release_tag }}
-  #     runs-on: ${{ inputs.runs-on }}
   #   secrets: inherit
 
 
