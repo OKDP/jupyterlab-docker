@@ -45,9 +45,9 @@ def test_long_tagger(mock_container, mock_exec_cmd):
 def test_generate_tags(mock_get_taggers_and_manifests, mock_container, mock_exec_cmd):
     """Test generate_tags output."""
     expected_tags = [
-        "ghcr.io/owner/pyspark-notebook:latest",
-        "ghcr.io/owner/pyspark-notebook:spark-3.4.1-python-3.12-java-17-scala-2.13",
-        "ghcr.io/owner/pyspark-notebook:spark-3.4.1-python-3.12.3-java-17.0.2-scala-2.13.12-hub-4.0.1-lab-4.0.5",
+        "ghcr.io/owner/pyspark-notebook:2025-09-22-amd64",
+        "ghcr.io/owner/pyspark-notebook:spark-3.4.1-python-3.12-java-17-scala-2.13-amd64",
+        "ghcr.io/owner/pyspark-notebook:spark-3.4.1-python-3.12.3-java-17.0.2-scala-2.13.12-hub-4.0.1-lab-4.0.5-amd64",
     ]
     
     mock_get_taggers_and_manifests.return_value = (
@@ -58,10 +58,10 @@ def test_generate_tags(mock_get_taggers_and_manifests, mock_container, mock_exec
         [spark_info_manifest],
     )
 
-    t = Tagging("pyspark-notebook:latest", "ghcr.io", "owner")
+    t = Tagging("pyspark-notebook:2025-09-22", "ghcr.io", "owner", "amd64")
     tags = t.generate_tags()
 
-    assert tags[0] == "ghcr.io/owner/pyspark-notebook:latest"
+    assert tags[0] == "ghcr.io/owner/pyspark-notebook:2025-09-22-amd64"
     for tag in expected_tags:
       assert tag in tags
     assert len(tags) == len(expected_tags)
@@ -75,7 +75,7 @@ def test_apply_tags(mock_apply_tags_docker, mock_apply_tags_docker_runner, mock_
     mock_apply_tags_docker_runner.return_value.__enter__.return_value = mock_container
     mock_apply_tags_docker_runner.return_value.__exit__.return_value = None
 
-    t = Tagging("pyspark-notebook:latest", "ghcr.io", "owner")
+    t = Tagging("pyspark-notebook:2025-09-22", "ghcr.io", "owner", "arm64")
     t.apply_tags()
 
     # Check docker["tag", ...] was called with the right args

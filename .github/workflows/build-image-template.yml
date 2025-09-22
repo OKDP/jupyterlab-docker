@@ -1,4 +1,4 @@
-name: Jupyter build single image template
+name: Jupyter build single arch image template
 
 on:
   workflow_call:
@@ -8,24 +8,24 @@ on:
         required: true
         type: string
       image:
-        description: Image name
+        description: Image name like "my-image:tag"
         required: true
         type: string
       publish_to_registry:
         description: Wheter to push to the registry
         required: false
         type: string
-        default: "false"
+        default: false
       ci_registry:
-        description: "The registry used to push ci images"
+        description: The registry used to push ci images
         required: false
         type: string
-        default: "ghcr.io"
+        default: ghcr.io
       registry:
         description: The container registry 
         required: false
         type: string
-        default: "quay.io"
+        default: quay.io
       build-args:
         description: Build args comma separated list, ex. PYTHON_VERSION=3.11, ...
         required: false
@@ -39,14 +39,18 @@ on:
         description: GitHub Actions Runner image
         required: true
         type: string
+      platform:
+        description: Image platform (x86_64 or aarch64)
+        required: true
+        type: string
 
 defaults:
   run:
     working-directory: ./docker-stacks
 
 jobs:
-  build-test-push:
-    name: ${{ inputs.image }}
+  build-test:
+    name: ${{ inputs.platform }}-${{ inputs.image }}
     runs-on: ${{ inputs.runs-on }}
   
     steps:
@@ -61,12 +65,10 @@ jobs:
         if: inputs.publish_to_registry == 'false'
         uses: actions/checkout@v5
 
-      - name: Free up disk space 📦
-        if: env.ACT != 'true'
-        uses: ./.github/actions/free-disk-space
-
-      # - name: Set up QEMU and Docker Buildx 📦
-      #  uses: ./.github/actions/setup-buildx
+      # For cuda images only
+      # - name: Free up disk space 📦
+      #  if: env.ACT != 'true'
+      #  uses: ./.github/actions/free-disk-space
 
       - name: Patch create a build environment
         uses: ./.github/actions/patch-create-dev-env
@@ -81,9 +83,6 @@ jobs:
 
       - name: Setup dev env patchs 📦
         uses: ./.github/actions/install-okdp-extension
-      
-      - name: Expose git commit sha as env variable
-        uses: rlespinasse/git-commit-data-action@v1.5.0
 
       - name: Login to the CI registry 🔐
         if: inputs.publish_to_registry == 'false'
@@ -100,7 +99,7 @@ jobs:
           registry: ${{ inputs.registry }}
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_ROBOT_TOKEN }}
-          
+
       - name: Set CI Github container registry namespace
         if: inputs.publish_to_registry == 'false'
         run:  |
@@ -117,7 +116,7 @@ jobs:
 
       - name: Pull parent image 📥
         if: inputs.parent-image != ''
-        run: docker pull $REGISTRY/$OWNER/${{ inputs.parent-image }}
+        run: docker pull $REGISTRY/$OWNER/${{ inputs.parent-image }}-${{ inputs.platform }}
         shell: bash
         
       - name: Prepare image build (build-args) 📦
@@ -128,7 +127,7 @@ jobs:
           done
           if [[ "${{ inputs.parent-image }}" ]]
           then
-            BUILD_ARGS+="--build-arg BASE_IMAGE=$REGISTRY/$OWNER/${{ inputs.parent-image }} "
+            BUILD_ARGS+="--build-arg BASE_IMAGE=$REGISTRY/$OWNER/${{ inputs.parent-image }}-${{ inputs.platform }} "
           fi
           echo "BUILD_ARGS=$BUILD_ARGS" >> $GITHUB_ENV
           # The short image name is necessary to run the tests (not pushed, local to jobs only)
@@ -142,7 +141,7 @@ jobs:
         working-directory: ./
         shell: bash
 
-      - name: Add additional librairies 📦
+      - name: Add additional libraries 📦
         run: |
           if test -f "$SHORT_IMAGE_NAME/Dockerfile"
           then
@@ -162,7 +161,7 @@ jobs:
 
       - name: Build image 🛠
         run: |
-          docker build --rm --force-rm --tag $REGISTRY/$OWNER/${{ inputs.image }} \
+          docker build --rm --force-rm --tag $REGISTRY/$OWNER/${{ inputs.image }}-${{ inputs.platform }} \
             --tag $REGISTRY/$OWNER/$SHORT_IMAGE_NAME:latest images/$SHORT_IMAGE_NAME/ \
             --build-arg REGISTRY=$REGISTRY \
             --build-arg OWNER=$OWNER $BUILD_ARGS \
@@ -179,34 +178,17 @@ jobs:
         # Skip tests when running with ACT
         if: inputs.publish_to_registry == 'false' && env.ACT_SKIP_TESTS == ''
         run: |
-            python3 -m tests.run_tests --image $SHORT_IMAGE_NAME --registry ${{ inputs.ci_registry }} --owner $OWNER
+           python3 -m tests.run_tests --image $SHORT_IMAGE_NAME --registry ${{ inputs.ci_registry }} --owner $OWNER
         shell: bash
-      
-      - name: Push to ci registry 📤
+
+      - name: Push to ci registry (${{ inputs.ci_registry }}) 📤
         if: inputs.publish_to_registry == 'false'
-        run: docker push ${{ inputs.ci_registry }}/$OWNER/${{ inputs.image }}
+        run: |
+           docker push ${{ inputs.ci_registry }}/$OWNER/${{ inputs.image }}-${{ inputs.platform }}
         shell: bash
 
-      ### Publish steps
-      ### The publish and periodic rebuilds are based on the latest stable github release tag
-      - name: Apply tags to the loaded image 🏷
+      - name: Push to public registry (${{ inputs.registry }}) 📤
         if: inputs.publish_to_registry == 'true'
         run: |
-          python3 -m okdp.extension.tagging.apply_tags --short-image-name ${{ inputs.image }} \
-                  --registry ${{ inputs.registry }} \
-                  --owner $OWNER
-    
-      - name: Prepare image push 📦
-        if: inputs.publish_to_registry == 'true'
-        run: |
-          # The short image name (without tag) is necessary to push to the registry
-          echo "SHORT_IMAGE_NAME=${{ inputs.image }}" | awk -F: '{print $1}' >> $GITHUB_ENV
+           docker push ${{ inputs.registry }}/$OWNER/${{ inputs.image }}-${{ inputs.platform }}
         shell: bash
-
-      - name: Push to official registry 📤
-        if: inputs.publish_to_registry == 'true'
-        run: docker push --all-tags ${{ inputs.registry }}/$OWNER/$SHORT_IMAGE_NAME
-        shell: bash
-
-
-      

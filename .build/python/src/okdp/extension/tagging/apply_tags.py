@@ -19,18 +19,19 @@ LOGGER = logging.getLogger(__name__)
 
 class Tagging:
 
-    def __init__(self, short_image_name: str, registry: str, owner: str,):
-        self.short_image_name, self.tag = short_image_name.split(":")
+    def __init__(self, image_name: str, registry: str, owner: str, platform: str,):
+        self.image_name, self.tag = image_name.split(":")
         self.registry = registry
         self.owner = owner
+        self.platform = platform
 
     def apply_tags(self) -> None:
         """
-        Tags <registry>/<owner>/<short_image_name>:tag with the tags reported by all taggers for this image
+        Tags <registry>/<owner>/<image_name>:tag with the tags reported by all taggers for this image
         """
-        LOGGER.info(f"Tagging image: {self.short_image_name}")
+        LOGGER.info(f"Tagging image: {self.image_name}")
 
-        image = f"{self.registry}/{self.owner}/{self.short_image_name}:{self.tag}"
+        image = f"{self.registry}/{self.owner}/{self.image_name}:{self.tag}-{self.platform}"
         
         tags = self.generate_tags()
 
@@ -40,13 +41,13 @@ class Tagging:
 
     def generate_tags(self) -> list[str]:
         """
-        Generate tags for the image <registry>/<owner>/<short_image_name>:latest
+        Generate tags for the image <registry>/<owner>/<image_name>:latest
         """
-        LOGGER.info(f"Tagging image: {self.short_image_name}")
-        taggers, _ = get_taggers_and_manifests(self.short_image_name)
+        LOGGER.info(f"Tagging image: {self.image_name}")
+        taggers, _ = get_taggers_and_manifests(self.image_name)
 
-        image = f"{self.registry}/{self.owner}/{self.short_image_name}:{ self.tag }"
-        tags = [f"{self.registry}/{self.owner}/{self.short_image_name}:{ self.tag }"]
+        image = f"{self.registry}/{self.owner}/{self.image_name}:{self.tag}-{self.platform}"
+        tags = [f"{self.registry}/{self.owner}/{self.image_name}:{self.tag}-{self.platform}"]
         with DockerRunner(image) as container:
             for tagger in taggers:
                 tagger_name = tagger.__class__.__name__
@@ -55,7 +56,7 @@ class Tagging:
                     f"Calculated tag, tagger_name: {tagger_name} tag_value: {tag_value}"
                 )
                 tags.append(
-                    f"{self.registry}/{self.owner}/{self.short_image_name}:{tag_value}"
+                    f"{self.registry}/{self.owner}/{self.image_name}:{tag_value}-{self.platform}"
                 )
 
         return tags
@@ -66,9 +67,9 @@ if __name__ == "__main__":
 
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument(
-        "--short-image-name",
+        "--image-name",
         required=True,
-        help="Short image name",
+        help="Image name:tag",
     )
     arg_parser.add_argument(
         "--registry",
@@ -82,8 +83,15 @@ if __name__ == "__main__":
         required=True,
         help="Owner of the image",
     )
+    arg_parser.add_argument(
+        "--platform",
+        required=True,
+        type=str,
+        choices=["amd64", "arm64"],
+        help="Platform",
+    )
     args = arg_parser.parse_args()
 
-    tagging = Tagging(args.short_image_name, args.registry, args.owner)
+    tagging = Tagging(args.image_name, args.registry, args.owner, args.platform)
     
     tagging.apply_tags()
