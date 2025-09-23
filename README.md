@@ -8,6 +8,7 @@ The project leverages the features provided by [jupyter docker-stacks](https://g
 - Build from the original [source docker files](docker-stacks/images)
 - Customize the images by using docker ```build-arg``` build arguments
 - Run the original [tests](docker-stacks/tests) at every pipeline trigger
+- Provides [multi-arch](https://docs.docker.com/build/building/multi-platform/) images that can run on both linux/amd64 and linux/arm64
 
 The project provides an up to date jupyter lab images especially for pyspark.
 
