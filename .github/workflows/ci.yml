@@ -5,15 +5,8 @@ on:
     branches:
       - main
     paths:
-      - ".github/workflows/ci.yml"
-      - ".github/workflows/publish.yml"
-      - ".github/workflows/build-image-template.yml"
-      - ".github/workflows/build-base-images-template.yml"
-      - ".github/workflows/build-datascience-images-template.yml"
-      - ".github/workflows/build-spark-images-template.yml"
-      - ".github/actions/install-patchs-and-extension/action.yml"
-      - ".github/actions/setup-buildx/action.yml"
-      - ".github/actions/free-disk-space/action.yml"
+      - ".github/workflows/**"
+      - ".github/actions/**"
 
       - ".build/.versions.yml"
       - ".build/python/okdp/**"
@@ -40,15 +33,8 @@ on:
 
   push:
     paths:
-      - ".github/workflows/ci.yml"
-      - ".github/workflows/publish.yml"
-      - ".github/workflows/build-image-template.yml"
-      - ".github/workflows/build-base-images-template.yml"
-      - ".github/workflows/build-datascience-images-template.yml"
-      - ".github/workflows/build-spark-images-template.yml"
-      - ".github/actions/install-patchs-and-extension/action.yml"
-      - ".github/actions/setup-buildx/action.yml"
-      - ".github/actions/free-disk-space/action.yml"
+      - ".github/workflows/**"
+      - ".github/actions/**"
 
       - ".build/.versions.yml"
       - ".build/python/okdp/**"
