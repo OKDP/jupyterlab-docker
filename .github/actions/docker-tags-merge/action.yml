@@ -27,14 +27,15 @@ runs:
     # Pull the images locally for the two platforms: amd64 and arm64
     - name: Pull ${{ inputs.image }} image for ${{ inputs.platform_amd64 }} platform ⬇️
       run: |
-        docker pull ${{ inputs.registry }}/$OWNER/${{ inputs.image }}-${{ inputs.platform_amd64 }}
+        docker pull --platform=linux/${{ inputs.platform_amd64 }} ${{ inputs.registry }}/$OWNER/${{ inputs.image }}-${{ inputs.platform_amd64 }}
       shell: bash
 
     - name: Pull ${{ inputs.image }} image for ${{ inputs.platform_arm64 }} platform ⬇️
       run: |
-        docker pull ${{ inputs.registry }}/$OWNER/${{ inputs.image }}-${{ inputs.platform_arm64 }}
+        docker pull --platform=linux/${{ inputs.platform_arm64 }} ${{ inputs.registry }}/$OWNER/${{ inputs.image }}-${{ inputs.platform_arm64 }}
       shell: bash
 
+    # Apply tags
     - name: Apply tags to ${{ inputs.image }} image and platform ${{ inputs.platform_amd64 }} 🏷
       run: |
         python3 -m okdp.extension.tagging.apply_tags --image-name ${{ inputs.image }} \
