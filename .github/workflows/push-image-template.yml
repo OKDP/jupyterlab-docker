@@ -113,6 +113,7 @@ jobs:
         shell: bash
 
       - name: Merge ${{ inputs.platform_amd64 }} and ${{ inputs.platform_arm64 }} image tags
+        id: merge-tags
         uses: ./.github/actions/docker-tags-merge
         with:
           image: ${{ inputs.image }}
@@ -123,19 +124,27 @@ jobs:
       - name: Push to ci registry (${{ inputs.ci_registry }}) 📤
         if: inputs.publish_to_registry == 'false'
         run: |
-          docker push --all-tags $REGISTRY/$OWNER/$SHORT_IMAGE_NAME
+          for tag in ${{ steps.merge-tags.outputs.image_tags }}
+          do
+            docker push ${tag}-${{ inputs.platform_amd64 }}
+            docker push ${tag}-${{ inputs.platform_arm64 }}
+          done
         shell: bash
 
       - name: Push to public registry (${{ inputs.registry }}) 📤
         if: inputs.publish_to_registry == 'true'
         run: |
-          docker push --all-tags $REGISTRY/$OWNER/$SHORT_IMAGE_NAME
+          for tag in ${{ steps.merge-tags.outputs.image_tags }}
+          do
+            docker push ${tag}-${{ inputs.platform_amd64 }}
+            docker push ${tag}-${{ inputs.platform_arm64 }}
+          done
         shell: bash
 
       - name: Create multi-arch (${{ inputs.platform_amd64 }}/${{ inputs.platform_arm64 }}) image for ${{ inputs.image }} 📤
         run: |
           # The tags are already in the form: $REGISTRY/$OWNER/${{ inputs.image }}
-          for tag in $IMAGE_TAGS
+          for tag in ${{ steps.merge-tags.outputs.image_tags }}
           do
             echo "Creating multi-arch manifest for $tag ..."
             docker manifest create $tag $tag-${{ inputs.platform_amd64 }} $tag-${{ inputs.platform_arm64 }}
