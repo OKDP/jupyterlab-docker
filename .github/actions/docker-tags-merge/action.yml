@@ -13,18 +13,28 @@ inputs:
   platform_arm64:
     description: Target image platform for AMD64 architecture
     required: true
+outputs:
+  short_image_name:
+    description: "The image name without tag"
+    value: ${{ steps.prepare-image.outputs.short_image_name }}
+  image_tags:
+    description: "List of computed image tags"
+    value: ${{ steps.fetch-tags.outputs.image_tags }}
 
 runs:
   using: "composite"
   steps:
 
     - name: Prepare image push 📦
+      id: prepare-image
       run: |
-        # The short image name (without tag) is necessary to push to the registry
-        echo "SHORT_IMAGE_NAME=${{ inputs.image }}" | awk -F: '{print $1}' >> $GITHUB_ENV
+        short_name=$(echo "${{ inputs.image }}" | awk -F: '{print $1}')
+        echo "Short image name: $short_name"
+        echo "short_image_name=$short_name" >> $GITHUB_OUTPUT
       shell: bash
 
-    # Pull the images locally for the two platforms: amd64 and arm64
+    # Pull the images locally for the two architectures: amd64 and arm64
+    # These images are already built and pushed separately by the appropriate github runners (amd64 and arm64)
     - name: Pull ${{ inputs.image }} image for ${{ inputs.platform_amd64 }} platform ⬇️
       run: |
         docker pull --platform=linux/${{ inputs.platform_amd64 }} ${{ inputs.registry }}/$OWNER/${{ inputs.image }}-${{ inputs.platform_amd64 }}
@@ -35,7 +45,7 @@ runs:
         docker pull --platform=linux/${{ inputs.platform_arm64 }} ${{ inputs.registry }}/$OWNER/${{ inputs.image }}-${{ inputs.platform_arm64 }}
       shell: bash
 
-    # Apply tags
+    # Apply okdp tags to the AMD64 image.
     - name: Apply tags to ${{ inputs.image }} image and platform ${{ inputs.platform_amd64 }} 🏷
       run: |
         python3 -m okdp.extension.tagging.apply_tags --image-name ${{ inputs.image }} \
@@ -44,21 +54,33 @@ runs:
                 --platform ${{ inputs.platform_amd64 }}
       shell: bash
 
+    # Extract the list of base image tags (without the architecture suffix) from the locally pulled AMD64 images.
     - name: Fetch all tags for ${{ inputs.image }} image and platform ${{ inputs.platform_amd64 }} 🏷
+      id: fetch-tags
       run: |
-        tags=$(docker images ${{ inputs.registry }}/$OWNER/$SHORT_IMAGE_NAME \
+        tags=$(docker images ${{ inputs.registry }}/$OWNER/${{ steps.prepare-image.outputs.short_image_name }} \
           --format "{{.Repository}}:{{.Tag}}" \
           | grep -v -- "-${{ inputs.platform_arm64 }}$" \
           | sed "s/-${{ inputs.platform_amd64 }}$//" \
           | tr '\n' ' ')
-        echo "IMAGE_TAGS=$tags" >> $GITHUB_ENV
+        echo "Found image tags: $tags"
+        echo "image_tags=$tags" >> $GITHUB_OUTPUT
       shell: bash
 
+    # Apply the previously extracted base tags to the ARM64 image by adding the correct architecture suffix.
+    # This ensures that every ARM64 image receives the same tag set as the AMD64 images.
     - name: Apply tags to ${{ inputs.image }} image and platform ${{ inputs.platform_arm64 }} 🏷
       run: |
-        for tag in $IMAGE_TAGS
+        for tag in ${{ steps.fetch-tags.outputs.image_tags }}
         do
           docker tag ${{ inputs.registry }}/$OWNER/${{ inputs.image }}-${{ inputs.platform_arm64 }} ${tag}-${{ inputs.platform_arm64 }}
         done
+      shell: bash
+
+    # Display all tags for the image to verify uniform tagging across architectures.
+    # Provide a final overview of every generated tag after the tagging process.
+    - name: Show all the image tags for the two architectures (AMD64 and ARM64) 📋
+      run: |
+        docker images ${{ inputs.registry }}/$OWNER/${{ steps.prepare-image.outputs.short_image_name }}
       shell: bash
 
