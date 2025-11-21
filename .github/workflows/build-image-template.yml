@@ -160,8 +160,9 @@ jobs:
 
       - name: Build image 🛠
         run: |
-          docker build --rm --force-rm --tag $REGISTRY/$OWNER/${{ inputs.image }}-${{ inputs.platform }} \
+          docker buildx build --platform=linux/${{ inputs.platform }} --rm --force-rm --tag $REGISTRY/$OWNER/${{ inputs.image }}-${{ inputs.platform }} \
             --tag $REGISTRY/$OWNER/$SHORT_IMAGE_NAME:latest images/$SHORT_IMAGE_NAME/ \
+            --output=type=docker --sbom=false --provenance=false \
             --build-arg REGISTRY=$REGISTRY \
             --build-arg OWNER=$OWNER $BUILD_ARGS \
             --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
