@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/OKDP/jupyterlab-docker/compare/v1.1.0...v1.2.0) (2025-11-21)
+
+
+### Features
+
+* add S3 content manager and Trino support for scipy-notebook ([c3e2530](https://github.com/OKDP/jupyterlab-docker/commit/c3e2530e694462684080d742f02c07b5eff13d43))
+
+
+### Miscellaneous Chores
+
+* release 1.2.0 ([e6801bf](https://github.com/OKDP/jupyterlab-docker/commit/e6801bf3dbf795d92056483a8f1f2460731ab5b9))
+
 ## [1.1.0](https://github.com/OKDP/jupyterlab-docker/compare/v1.0.0...v1.1.0) (2025-09-24)
 
 
