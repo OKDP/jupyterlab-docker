@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/OKDP/jupyterlab-docker/compare/v1.2.0...v1.2.1) (2025-12-04)
+
+
+### Bug Fixes
+
+* make pyspark-notebook inherit from scipy-notebook ([bf47e59](https://github.com/OKDP/jupyterlab-docker/commit/bf47e594ac68b3e6ef57601237995617d68ccdc7))
+
 ## [1.2.0](https://github.com/OKDP/jupyterlab-docker/compare/v1.1.0...v1.2.0) (2025-11-24)
 
 
