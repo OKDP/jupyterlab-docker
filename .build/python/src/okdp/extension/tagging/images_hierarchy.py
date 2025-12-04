@@ -109,7 +109,7 @@ ALL_IMAGES = {
         manifests=[r_packages_manifest, julia_packages_manifest],
     ),
     "pyspark-notebook": ImageDescription(
-        parent_image=None,
+        parent_image="scipy-notebook",
         taggers=[
             LongTagger(spark_tagger, versions.python_major_minor_tagger, java_major_version_tagger, scala_major_minor_tagger),
             LongTagger(spark_tagger, versions.python_major_minor_tagger, java_major_version_tagger, scala_major_minor_tagger, commit_sha_tagger),
