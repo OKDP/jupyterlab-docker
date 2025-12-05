@@ -3,3 +3,4 @@ s3fs
 jupysql
 trino
 sqlalchemy-trino
+nbgitpuller
