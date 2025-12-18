@@ -60,8 +60,9 @@ compatibility-matrix:
 ### 1- The build-matrix is empty: build with all possible combintations
 ### 2- Override specific versions: build with all possible combinations which are compatible with that specific versions
 ### 3- The versions not present on compatibility-matrix are ignored
+### Check the supported versions: https://github.com/OKDP/spark-images/releases/tag/spark-tarballs
 build-matrix:
   python_version: ['3.10', '3.11', '3.12']
-  spark_version: [3.3.4, 3.4.4, 3.5.6, 4.0.1]
+  spark_version: [3.3.4, 3.4.2, 3.5.6]
   java_version: [17]
   scala_version: [2.12, 2.13]
