@@ -62,7 +62,7 @@ compatibility-matrix:
 ### 3- The versions not present on compatibility-matrix are ignored
 ### Check the supported versions: https://github.com/OKDP/spark-images/releases/tag/spark-tarballs
 build-matrix:
-  python_version: ['3.10', '3.11', '3.12']
-  spark_version: [3.3.4, 3.4.2, 3.5.6]
+  python_version: ['3.10']
+  spark_version: [3.3.4]
   java_version: [17]
-  scala_version: [2.12, 2.13]
+  scala_version: [2.13]
