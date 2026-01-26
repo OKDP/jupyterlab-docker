@@ -200,3 +200,14 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+--------------------------------------------------------------------------------
+
+This repository vendors Jupyter Docker Stacks (https://github.com/jupyter/docker-stacks)
+as a git subtree in `docker-stacks/`. The `docker-stacks/` subtree is licensed under the
+BSD 3-Clause License (BSD-3-Clause). See `docker-stacks/LICENSE.md` for details.
+
+Portions of the code under `.build/python/src/okdp/extension/tagging/` and
+`.build/python/src/okdp/patch/` are derived from Jupyter Docker Stacks and are provided
+under BSD-3-Clause; see the relevant file headers for attribution and licensing details.
+These sources are used for build/test workflows and are not intended to be included in runtime distributions;
