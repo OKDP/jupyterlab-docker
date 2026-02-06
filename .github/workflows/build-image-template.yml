@@ -167,12 +167,12 @@ jobs:
         working-directory: ./
         shell: bash
 
-      - name: Download Spark distribution into Github release (spark-tarballs) ⬇️
-        if: ${{ env.ACT != 'true' && contains(inputs.image, 'pyspark-notebook') }}
-        uses: ./.github/actions/download-spark
-        with:
-          build-args: ${{ inputs.build-args }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+#      - name: Download Spark distribution into Github release (spark-tarballs) ⬇️
+#        if: ${{ env.ACT != 'true' && contains(inputs.image, 'pyspark-notebook') }}
+#        uses: ./.github/actions/download-spark
+#        with:
+#          build-args: ${{ inputs.build-args }}
+#          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build image 🛠
         run: |

@@ -27,7 +27,7 @@ compatibility-matrix:
     scala_version: [2.12, 2.13]
     hadoop_version: 3.2
     # spark_download_url: https://archive.apache.org/dist/spark/
-    spark_download_url: https://github.com/OKDP/jupyterlab-docker/releases/download/spark-tarballs/
+    spark_download_url: https://github.com/OKDP/spark-images/releases/download/spark-tarballs/
   # Maximum python version supported by spark-3.3.x: 3.10
   # Java support: 8/11/17
   - python_version: '3.10'
@@ -36,7 +36,7 @@ compatibility-matrix:
     scala_version: [2.12, 2.13]
     hadoop_version: 3
     # spark_download_url: https://archive.apache.org/dist/spark/
-    spark_download_url: https://github.com/OKDP/jupyterlab-docker/releases/download/spark-tarballs/
+    spark_download_url: https://github.com/OKDP/spark-images/releases/download/spark-tarballs/
   # Maximum python version supported by spark-3.4.x: 3.11
   # Java support: 8/11/17
   - python_version: 3.11
@@ -45,7 +45,7 @@ compatibility-matrix:
     scala_version: [2.12, 2.13]
     hadoop_version: 3
     # spark_download_url: https://archive.apache.org/dist/spark/
-    spark_download_url: https://github.com/OKDP/jupyterlab-docker/releases/download/spark-tarballs/
+    spark_download_url: https://github.com/OKDP/spark-images/releases/download/spark-tarballs/
   # https://spark.apache.org/releases/spark-release-3-5-0.html
   # Minimum supported java version: 17/21
   - python_version: 3.11
@@ -54,7 +54,7 @@ compatibility-matrix:
     scala_version: [2.12, 2.13]
     hadoop_version: 3
     # spark_download_url: https://archive.apache.org/dist/spark/
-    spark_download_url: https://github.com/OKDP/jupyterlab-docker/releases/download/spark-tarballs/
+    spark_download_url: https://github.com/OKDP/spark-images/releases/download/spark-tarballs/
   # Minimum supported java version: 17/21
   # Support was dropped for 2.12 since spark 4
   # Maximum python version supported by spark-4.0.x: 3.13
@@ -64,20 +64,21 @@ compatibility-matrix:
     scala_version: [2.13]
     hadoop_version: 3
     # spark_download_url: https://archive.apache.org/dist/spark/
-    spark_download_url: https://github.com/OKDP/jupyterlab-docker/releases/download/spark-tarballs/
+    spark_download_url: https://github.com/OKDP/spark-images/releases/download/spark-tarballs/
   - python_version: 3.13
     spark_version: [4.0.0, 4.0.1]
     java_version: [17]
     scala_version: [2.13]
     hadoop_version: 3
     # spark_download_url: https://archive.apache.org/dist/spark/
-    spark_download_url: https://github.com/OKDP/jupyterlab-docker/releases/download/spark-tarballs/
+    spark_download_url: https://github.com/OKDP/spark-images/releases/download/spark-tarballs/
 ### Override the matrix above by providing the versions to build
 ### 1- The build-matrix is empty: build with all possible combintations
 ### 2- Override specific versions: build with all possible combinations which are compatible with that specific versions
 ### 3- The versions not present on compatibility-matrix are ignored
+### Check the supported versions: https://github.com/OKDP/spark-images/releases/tag/spark-tarballs
 build-matrix:
   python_version: ['3.10', '3.11', '3.12']
-  spark_version: [3.3.4, 3.4.4, 3.5.6, 4.0.1]
+  spark_version: [3.3.4, 3.4.2, 3.5.6]
   java_version: [17]
   scala_version: [2.12, 2.13]
