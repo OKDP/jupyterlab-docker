@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/OKDP/jupyterlab-docker/compare/v1.2.2...v1.3.0) (2026-02-06)
+
+
+### Miscellaneous Chores
+
+* release 1.3.0 ([d213d0a](https://github.com/OKDP/jupyterlab-docker/commit/d213d0ad6faabcffe8c5e407b13bdfae2995b52a))
+
 ## [1.2.2](https://github.com/OKDP/jupyterlab-docker/compare/v1.2.1...v1.2.2) (2025-12-05)
 
 
