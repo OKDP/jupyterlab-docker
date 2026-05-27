@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" font-family="Helvetica, Arial, sans-serif" font-size="11">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="450" y="40" text-anchor="middle" font-size="14" font-weight="bold">OKDP Jupyter Images — image inheritance chain (quay.io/okdp/jupyter)</text>
+
+  <!-- docker-stacks-foundation -->
+  <rect x="340" y="70" width="240" height="70" rx="6" ry="6" fill="#fff" stroke="#000" stroke-width="1"/>
+  <text x="460" y="94" text-anchor="middle" font-weight="bold">docker-stacks-foundation</text>
+  <text x="460" y="120" text-anchor="middle" font-style="italic">Ubuntu 24.04 + micromamba + jovyan</text>
+
+  <!-- base-notebook -->
+  <rect x="340" y="170" width="240" height="80" rx="6" ry="6" fill="#fff" stroke="#000" stroke-width="1"/>
+  <text x="460" y="194" text-anchor="middle" font-weight="bold">base-notebook</text>
+  <text x="460" y="218" text-anchor="middle" font-style="italic">JupyterLab + JupyterHub-singleuser</text>
+  <text x="460" y="236" text-anchor="middle" font-style="italic">+ Notebook</text>
+
+  <!-- minimal-notebook -->
+  <rect x="340" y="280" width="240" height="70" rx="6" ry="6" fill="#fff" stroke="#000" stroke-width="1"/>
+  <text x="460" y="304" text-anchor="middle" font-weight="bold">minimal-notebook</text>
+  <text x="460" y="330" text-anchor="middle" font-style="italic">git, nano, fonts, tzdata</text>
+
+  <!-- scipy-notebook -->
+  <rect x="200" y="390" width="240" height="80" rx="6" ry="6" fill="#fff" stroke="#000" stroke-width="1"/>
+  <text x="320" y="414" text-anchor="middle" font-weight="bold">scipy-notebook</text>
+  <text x="320" y="436" text-anchor="middle" font-style="italic">pandas, scipy, scikit-learn, …</text>
+  <text x="320" y="454" text-anchor="middle" font-style="italic">+ OKDP requirements.txt</text>
+
+  <!-- r-notebook -->
+  <rect x="620" y="390" width="200" height="70" rx="6" ry="6" fill="#fff" stroke="#000" stroke-width="1"/>
+  <text x="720" y="414" text-anchor="middle" font-weight="bold">r-notebook</text>
+  <text x="720" y="440" text-anchor="middle" font-style="italic">R + IRKernel</text>
+
+  <!-- datascience-notebook -->
+  <rect x="40" y="500" width="220" height="70" rx="6" ry="6" fill="#fff" stroke="#000" stroke-width="1"/>
+  <text x="150" y="524" text-anchor="middle" font-weight="bold">datascience-notebook</text>
+  <text x="150" y="550" text-anchor="middle" font-style="italic">R + Julia</text>
+
+  <!-- pyspark-notebook -->
+  <rect x="310" y="500" width="240" height="80" rx="6" ry="6" fill="#fff" stroke="#000" stroke-width="1"/>
+  <text x="430" y="524" text-anchor="middle" font-weight="bold">pyspark-notebook</text>
+  <text x="430" y="546" text-anchor="middle" font-style="italic">Spark + Java + Scala</text>
+  <text x="430" y="562" text-anchor="middle" font-style="italic">(from OKDP/spark-images)</text>
+
+  <!-- all-spark-notebook -->
+  <rect x="600" y="500" width="260" height="80" rx="6" ry="6" fill="#fff" stroke="#000" stroke-width="1"/>
+  <text x="730" y="524" text-anchor="middle" font-weight="bold">all-spark-notebook</text>
+  <text x="730" y="546" text-anchor="middle" font-style="italic">+ r-base + r-irkernel</text>
+  <text x="730" y="562" text-anchor="middle" font-style="italic">+ r-sparklyr</text>
+
+  <!-- Arrows -->
+  <!-- foundation → base -->
+  <line x1="460" y1="140" x2="460" y2="165" stroke="#000" stroke-width="1" marker-end="url(#arrow)"/>
+  <!-- base → minimal -->
+  <line x1="460" y1="250" x2="460" y2="275" stroke="#000" stroke-width="1" marker-end="url(#arrow)"/>
+  <!-- minimal → scipy -->
+  <path d="M 400 350 L 400 370 L 320 370 L 320 385" fill="none" stroke="#000" stroke-width="1" marker-end="url(#arrow)"/>
+  <!-- minimal → r -->
+  <path d="M 520 350 L 520 370 L 720 370 L 720 385" fill="none" stroke="#000" stroke-width="1" marker-end="url(#arrow)"/>
+  <!-- scipy → datascience -->
+  <path d="M 260 470 L 260 485 L 150 485 L 150 495" fill="none" stroke="#000" stroke-width="1" marker-end="url(#arrow)"/>
+  <!-- scipy → pyspark -->
+  <path d="M 380 470 L 380 485 L 430 485 L 430 495" fill="none" stroke="#000" stroke-width="1" marker-end="url(#arrow)"/>
+  <!-- pyspark → all-spark -->
+  <line x1="550" y1="540" x2="595" y2="540" stroke="#000" stroke-width="1" marker-end="url(#arrow)"/>
+</svg>
