@@ -113,30 +113,7 @@ When rebuilding an image from `docker-stacks/images/<image>/Dockerfile`, the fol
 
 ### Runtime environment variables
 
-The defaults work out of the box (the [Quick Start](#quick-start) does not set any env variable). You override them with `docker run -e VAR=value` only when you need to — typically when mounting a host directory whose UID/GID does not match `1000:100`, or when running a Spark job that needs more memory.
-
-Example: mount the current host directory as `/home/jovyan/work` and align the in-container user with the host user so files written by the notebook are owned by you:
-
-```sh
-docker run --rm -p 8888:8888 \
-  -e NB_UID=$(id -u) -e NB_GID=$(id -g) -e CHOWN_HOME=yes \
-  -v "$(pwd)":/home/jovyan/work \
-  quay.io/okdp/jupyter/pyspark-notebook:spark-3.5.6-python-3.11-java-17-scala-2.13
-```
-
-Full list of variables honoured by [`docker-stacks-foundation/start.sh`](docker-stacks/images/docker-stacks-foundation/start.sh) at container startup:
-
-| Variable | Default | Description |
-|:---|:---|:---|
-| `NB_USER` | `jovyan` | Desired username and associated home folder. |
-| `NB_UID` | `1000` | Desired user id. |
-| `NB_GID` | `100` | Group id the user belongs to. |
-| `NB_GROUP` | *(unset)* | Group name. |
-| `GRANT_SUDO` | *(unset)* | If `1` or `yes`, grant `${NB_USER}` passwordless `sudo`. |
-| `CHOWN_HOME` | *(unset)* | If `1` or `yes`, `chown` `${HOME}` to `${NB_UID}:${NB_GID}` at start. |
-| `CHOWN_EXTRA` | *(unset)* | Comma-separated list of additional paths to `chown`. |
-| `JUPYTER_PORT` | `8888` | Port JupyterLab listens on inside the container (set in [`base-notebook/Dockerfile`](docker-stacks/images/base-notebook/Dockerfile)). |
-| `SPARK_OPTS` | `--driver-java-options=-Xms1024M --driver-java-options=-Xmx4096M --driver-java-options=-Dlog4j.logLevel=info` | Extra options passed to `spark-submit` for `pyspark-notebook` / `all-spark-notebook` (set in [`pyspark-notebook/Dockerfile`](docker-stacks/images/pyspark-notebook/Dockerfile)). |
+The defaults work out of the box (the [Quick Start](#quick-start) does not set any env variable). Runtime configuration is inherited from upstream `jupyter/docker-stacks` — see [common features](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/common.html) for the full list of `-e VAR=value` flags honoured by [`start.sh`](docker-stacks/images/docker-stacks-foundation/start.sh) at container startup (`NB_USER`, `NB_UID`, `GRANT_SUDO`, `CHOWN_HOME`, …) and [the upstream `pyspark-notebook` page](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/specifics.html#apache-spark) for `SPARK_OPTS`.
 
 <!-- Section 10 — Images -->
 
