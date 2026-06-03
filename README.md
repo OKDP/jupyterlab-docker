@@ -297,42 +297,12 @@ CI runs the upstream [`docker-stacks` tests](docker-stacks/tests) at every pipel
 
 ## Troubleshooting
 
-Below are common issues you may encounter when running the OKDP JupyterLab images, along with their root causes and recommended fixes.
-
-- **Port 8888 already in use.** Another container or a local Jupyter instance is already bound to port 8888 on the host. Map a different host port when starting the container:
-
-  ```bash
-  docker run -p 8889:8888 okdp/jupyterlab-pyspark-notebook:latest
-  ```
-
-  Then open `http://localhost:8889` in your browser.
-
-- **Permission denied when saving files in a mounted volume.** The host user's UID/GID does not match the container's default `jovyan` user (`1000:100`), so writes to the bind mount are rejected. Run the container as your host user and let the entrypoint fix ownership of the home directory:
-
-  ```bash
-  docker run \
-    -e NB_UID=$(id -u) \
-    -e NB_GID=$(id -g) \
-    -e CHOWN_HOME=yes \
-    --user root \
-    -v "$PWD":/home/jovyan/work \
-    okdp/jupyterlab-pyspark-notebook:latest
-  ```
-
-  See the upstream [jupyter-docker-stacks common features](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/common.html) for the full list of supported variables.
-
-- **Spark job runs out of memory.** The default `SPARK_OPTS` caps the driver heap at `-Xmx4096M`, which is too small for larger workloads. Override `SPARK_OPTS` to raise the driver heap (and any other JVM options you need):
-
-  ```bash
-  docker run -e SPARK_OPTS="--driver-java-options=-Xmx8g" \
-    okdp/jupyterlab-pyspark-notebook:latest
-  ```
-
-- **Pull is very slow or fails with "no space left on device".** The `pyspark-notebook` image is roughly 7 GB on disk, which can exhaust Docker's storage on smaller hosts. Free up space (`docker system prune`) or first pull a smaller variant such as `base-notebook` to validate connectivity and registry access before pulling the full PySpark image:
-
-  ```bash
-  docker pull okdp/jupyterlab-base-notebook:latest
-  ```
+| Symptom | Cause & fix |
+|:--------|:------------|
+| `bind: address already in use` on 8888 | Another process is bound to 8888 — remap with `-p 8889:8888` and open `http://localhost:8889`. |
+| `Permission denied` writing to a bind-mounted volume | Host UID/GID differs from the container's `jovyan` user (`1000:100`). Run as root and let the entrypoint chown: `-e NB_UID=$(id -u) -e NB_GID=$(id -g) -e CHOWN_HOME=yes --user root`. See the upstream [common features](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/common.html) reference for all env vars. |
+| Spark driver `OutOfMemoryError` | Default `SPARK_OPTS` caps the heap at `-Xmx4096M`. Override at run time: `-e SPARK_OPTS="--driver-java-options=-Xmx8g"`. |
+| `no space left on device` during `docker pull` | `pyspark-notebook` is ~7 GB. Free space with `docker system prune`, or first pull `base-notebook` to validate registry access. |
 
 ## License
 
