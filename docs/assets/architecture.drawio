@@ -25,8 +25,8 @@
           <mxGeometry x="325" y="250" width="220" height="60" as="geometry" />
         </mxCell>
 
-        <!-- Scipy (OKDP override — bold border) -->
-        <mxCell id="scipy" value="scipy-notebook&#10;&#10;pandas, scipy, scikit-learn, …&#10;+ OKDP requirements.txt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=3;fontSize=11;fontStyle=1;align=center;fontColor=#000000;" vertex="1" parent="1">
+        <!-- Scipy -->
+        <mxCell id="scipy" value="scipy-notebook&#10;&#10;pandas, scipy, scikit-learn, …&#10;+ OKDP requirements.txt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;fontSize=11;fontStyle=1;align=center;fontColor=#000000;" vertex="1" parent="1">
           <mxGeometry x="200" y="350" width="220" height="70" as="geometry" />
         </mxCell>
 
@@ -40,8 +40,8 @@
           <mxGeometry x="50" y="460" width="200" height="60" as="geometry" />
         </mxCell>
 
-        <!-- Pyspark (OKDP override — bold border) -->
-        <mxCell id="pyspark" value="pyspark-notebook&#10;&#10;Spark + Java + Scala&#10;(from OKDP/spark-images)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=3;fontSize=11;fontStyle=1;align=center;fontColor=#000000;" vertex="1" parent="1">
+        <!-- Pyspark -->
+        <mxCell id="pyspark" value="pyspark-notebook&#10;&#10;Spark + Java + Scala&#10;(from OKDP/spark-images)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;fontSize=11;fontStyle=1;align=center;fontColor=#000000;" vertex="1" parent="1">
           <mxGeometry x="300" y="460" width="220" height="70" as="geometry" />
         </mxCell>
 
@@ -73,16 +73,6 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- Legend -->
-        <mxCell id="legend-title" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1;fontColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="50" y="560" width="80" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="legend-okdp" value="OKDP override layer (bold border)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=3;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="140" y="560" width="240" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="legend-upstream" value="Upstream jupyter/docker-stacks (thin border)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="390" y="560" width="290" height="20" as="geometry" />
-        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
