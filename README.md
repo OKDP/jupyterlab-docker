@@ -290,7 +290,7 @@ CI runs the upstream [`docker-stacks` tests](docker-stacks/tests) at every pipel
 
 ## OKDP Integration
 
-These images are published to [`quay.io/okdp/jupyter`](https://quay.io/organization/okdp) and consumed as the JupyterHub singleuser image by the [OKDP sandbox](https://github.com/OKDP/okdp-sandbox). The Spark variants pull their tarballs from the [OKDP Spark distribution](https://github.com/OKDP/spark-images/releases/tag/spark-tarballs) instead of `archive.apache.org`.
+These images are published to `quay.io/okdp/jupyter` and consumed as the JupyterHub singleuser image by the OKDP sandbox. The Spark variants pull their tarballs from the OKDP Spark distribution instead of `archive.apache.org`.
 
 ## Troubleshooting
 
