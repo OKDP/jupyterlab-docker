@@ -94,42 +94,6 @@ docker pull quay.io/okdp/jupyter/<image>:<tag>
 ```
 
 Where `<image>` is one of `docker-stacks-foundation`, `base-notebook`, `minimal-notebook`, `scipy-notebook`, `r-notebook`, `datascience-notebook`, `pyspark-notebook`, `all-spark-notebook`, and `<tag>` is any [published tag](#components) (the recommended pyspark tag as of v1.3.0 is `spark-3.5.6-python-3.11-java-17-scala-2.13`).
-
-### Cleanup
-
-When you are done experimenting, stop the container and (optionally) remove the image to reclaim disk space (~7 GB).
-
-**Stop the container**
-
-If the container is running in the foreground, press `Ctrl-C` in the terminal where it was launched.
-
-If it is running detached, find its ID and stop it:
-
-```bash
-docker ps                       # list running containers
-docker stop <container-id>      # graceful stop
-```
-
-**Remove the container**
-
-The Quick Start uses `--rm`, so the container is deleted automatically on exit. If you launched it without `--rm`, remove it manually:
-
-```bash
-docker ps -a                    # list all containers (including stopped)
-docker rm <container-id>        # remove a stopped container
-```
-
-**Remove the image**
-
-The PySpark notebook image is large (~7 GB). Remove it once you no longer need it:
-
-```bash
-docker images                                                                            # list local images
-docker rmi quay.io/okdp/jupyter/pyspark-notebook:spark-3.5.6-python-3.11-java-17-scala-2.13
-```
-
-If `docker rmi` reports the image is still in use, stop and remove any container based on it first (see steps above).
-
 ## Configuration
 
 ### Build arguments
@@ -244,7 +208,6 @@ Official images are published to [`quay.io/okdp/jupyter`](https://quay.io/organi
 act --container-architecture linux/amd64 \
     -W .github/workflows/ci.yml \
     --env ACT_SKIP_TESTS=<true|false> \
-    --secret GITHUB_TOKEN=<GITHUB_TOKEN> \
     --rm
 ```
 
@@ -270,7 +233,7 @@ curl -sL -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8888/lab
 For `pyspark-notebook` / `all-spark-notebook`, run a one-liner `SparkPi` job from inside the running container to confirm Spark is wired up:
 
 ```sh
-CONTAINER_ID=$(docker ps --filter ancestor=quay.io/okdp/jupyter/pyspark-notebook --format '{{.ID}}' | head -1)
+CONTAINER_ID=$(docker ps --filter ancestor=quay.io/okdp/jupyter/pyspark-notebook:spark-3.5.6-python-3.11-java-17-scala-2.13 --format '{{.ID}}' | head -1)
 
 docker exec "$CONTAINER_ID" bash -lc '
   $SPARK_HOME/bin/spark-submit \
@@ -287,6 +250,43 @@ Pi is roughly 3.1407...
 ```
 
 CI runs the upstream [`docker-stacks` tests](docker-stacks/tests) at every pipeline trigger, plus the OKDP [unit tests](.build/python/tests).
+
+## Cleanup
+
+When you are done experimenting, stop the container and (optionally) remove the image to reclaim disk space (~7 GB).
+
+**Stop the container**
+
+If the container is running in the foreground, press `Ctrl-C` in the terminal where it was launched.
+
+If it is running detached, find its ID and stop it:
+
+```bash
+docker ps                       # list running containers
+docker stop <container-id>      # graceful stop
+```
+
+**Remove the container**
+
+The Quick Start uses `--rm`, so the container is deleted automatically on exit. If you launched it without `--rm`, remove it manually:
+
+```bash
+docker ps -a                    # list all containers (including stopped)
+docker rm <container-id>        # remove a stopped container
+```
+
+**Remove the image**
+
+The PySpark notebook image is large (~7 GB). Remove it once you no longer need it:
+
+```bash
+docker images                                                                            # list local images
+docker rmi quay.io/okdp/jupyter/pyspark-notebook:spark-3.5.6-python-3.11-java-17-scala-2.13
+```
+
+If `docker rmi` reports the image is still in use, stop and remove any container based on it first (see steps above).
+
+
 
 ## OKDP Integration
 
