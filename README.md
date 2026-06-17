@@ -253,38 +253,11 @@ CI runs the upstream [`docker-stacks` tests](docker-stacks/tests) at every pipel
 
 ## Cleanup
 
-When you are done experimenting, stop the container and (optionally) remove the image to reclaim disk space (~7 GB).
-
-**Stop the container**
-
-If the container is running in the foreground, press `Ctrl-C` in the terminal where it was launched.
-
-If it is running detached, find its ID and stop it:
+The PySpark notebook image is large (~7 GB). Remove it once you no longer need it to reclaim disk space:
 
 ```bash
-docker ps                       # list running containers
-docker stop <container-id>      # graceful stop
-```
-
-**Remove the container**
-
-The Quick Start uses `--rm`, so the container is deleted automatically on exit. If you launched it without `--rm`, remove it manually:
-
-```bash
-docker ps -a                    # list all containers (including stopped)
-docker rm <container-id>        # remove a stopped container
-```
-
-**Remove the image**
-
-The PySpark notebook image is large (~7 GB). Remove it once you no longer need it:
-
-```bash
-docker images                                                                            # list local images
 docker rmi quay.io/okdp/jupyter/pyspark-notebook:spark-3.5.6-python-3.11-java-17-scala-2.13
 ```
-
-If `docker rmi` reports the image is still in use, stop and remove any container based on it first (see steps above).
 
 
 
