@@ -39,7 +39,7 @@ OKDP Jupyter images follow the upstream [jupyter/docker-stacks](https://github.c
 
 For the canonical, upstream-maintained description of every image and what it ships, refer to the Jupyter Docker Stacks reference: [Selecting an Image](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html).
 
-<p align="center"><img src="docs/assets/architecture.png" alt="OKDP Jupyter Images: inheritance chain" /></p>
+<p align="center"><img src="docs/assets/architecture.svg" alt="OKDP Jupyter Images: inheritance chain" /></p>
 
 The OKDP override layer (highlighted on `scipy-notebook` and `pyspark-notebook`) is where OKDP-specific packages from `requirements.txt` are installed on top of the upstream image content.
 
