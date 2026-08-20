@@ -1,5 +1,3 @@
-jupyter-fs[fsspec]
-s3fs
 jupysql
 trino
 sqlalchemy-trino
