@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.0](https://github.com/OKDP/jupyterlab-docker/compare/v1.3.0...v1.4.0) (2026-09-21)
+
+
+### Bug Fixes
+
+* **base-notebook:** added python jupyter-fs and s3fs library which the minimal-notebook needs at spawn ([a9933da](https://github.com/OKDP/jupyterlab-docker/commit/a9933da2eceadc132eb012f7f8f3237116a82332))
+
+
+### Miscellaneous Chores
+
+* release 1.4.0 ([4f29f6e](https://github.com/OKDP/jupyterlab-docker/commit/4f29f6e84a66794458a25926ed230ca0d697a617))
+
 ## [1.3.0](https://github.com/OKDP/jupyterlab-docker/compare/v1.2.2...v1.3.0) (2026-02-06)
 
 
